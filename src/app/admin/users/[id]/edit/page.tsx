@@ -3,8 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Toaster, toast } from 'react-hot-toast';
-import { ArrowLeft } from 'lucide-react';
+import { View ,ChevronLeft,} from 'lucide-react';
 import Link from 'next/link';
+
+import { Funnel_Sans, Markazi_Text } from 'next/font/google';
+const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
+export const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
 
 interface UserUpdateData {
   username: string;
@@ -123,17 +127,29 @@ export default function EditUser() {
   }
 
   return (
-    <div className="bg-gray-50 py-10 px-6">
+    <div className="bg-gray-50 py-10 px-6 rounded-lg">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <Link 
-            href="/admin/users" 
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
+        <div className="flex items-center justify-between mb-6">
+          {/* Left: Back Arrow + Text */}
+          <Link
+            href="/admin/users"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 gap-4"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Users
+            <ChevronLeft className="h-5 w-5" />
+            <h1 className={`${markaziText.className} text-3xl font-bold text-gray-900`}>
+              Edit Information
+            </h1>
           </Link>
+
+          <Link
+            href={`/admin/users/${params.id}`}
+            className="text-gray-600 hover:text-gray-900"
+          >
+            <View className="h-5 w-5" />
+          </Link>
+
         </div>
+
 
         <div className="bg-white shadow rounded-lg p-6">
           <h1 className="text-2xl font-semibold text-gray-900 mb-6">Edit User</h1>

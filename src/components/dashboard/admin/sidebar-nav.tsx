@@ -53,9 +53,9 @@ export default function AdminSidebar({ user, onCollapse }: AdminSidebarProps) {
             className={`flex items-center transition-all duration-200 ${isCollapsed ? "justify-center w-full" : ""}`}
           >
             <span
-              className={`${fascinate.className} text-black transition-all duration-200 tracking-widest text-3xl font-bold`}
+              className={`${fascinate.className} text-black transition-all duration-200 tracking-widest text-2xl font-bold`}
             >
-              {!isCollapsed && "HoTsHoP"}
+              {!isCollapsed && "HoT🔥sHoP"}
             </span>
           </Link>
 
@@ -93,11 +93,10 @@ export default function AdminSidebar({ user, onCollapse }: AdminSidebarProps) {
                       `}
                     >
                       <item.icon
-                        className={`h-5 w-5 shrink-0 transition-all duration-200 ${
-                          pathname === item.href 
-                            ? "text-black fill-orange-500 scale-10" 
+                        className={`h-5 w-5 shrink-0 transition-all duration-200 ${pathname === item.href
+                            ? "text-black fill-orange-500 scale-10"
                             : "text-black group-hover:text-black"
-                        }`}
+                          }`}
                       />
 
                       {!isCollapsed && (

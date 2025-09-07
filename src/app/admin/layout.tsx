@@ -16,44 +16,55 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    const userCookie = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('user='))
-      ?.split('=')[1];
-    
-    if (userCookie) {
-      try {
-        const userData = JSON.parse(decodeURIComponent(userCookie));
-        setUser(userData);
-        
-        if (!userData.roles.includes('ADMIN')) {
-          router.push('/unauthorized');
-        }
-      } catch (error) {
-        router.push('/login');
-      }
-    } else {
+    const getUserFromCookie = () => {
+      const match = document.cookie.match(/(^|;) ?user=([^;]*)/);
+      return match ? decodeURIComponent(match[2]) : null;
+    };
+
+    const userCookie = getUserFromCookie();
+
+    if (!userCookie) {
       router.push('/login');
+      return;
     }
-    setIsLoading(false);
+
+    try {
+      const parsedUser = JSON.parse(userCookie);
+      if (!parsedUser.roles.includes('ADMIN')) {
+        router.push('/unauthorized');
+      } else {
+        setUser(parsedUser);
+      }
+    } catch {
+      router.push('/login');
+    } finally {
+      setIsLoading(false);
+    }
   }, [router]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* ✅ pass user to header */}
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Header */}
       <AdminHeader user={user} />
-      <div className="flex">
-        {/* ✅ pass user to sidebar */}
+
+      <div className="flex flex-1 transition-all duration-300">
+        {/* Sidebar */}
         <AdminSidebar user={user} onCollapse={setIsSidebarCollapsed} />
-        <main className={`flex-1 p-6 transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+
+        {/* Main Content */}
+        <main
+          className={`flex-1 p-6 transition-all duration-300 ${
+            isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
+          }`}
+        >
           {children}
         </main>
       </div>

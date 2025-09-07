@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import {
-    ArrowLeft,
+    ChevronLeft,
     User2,
     Mail,
     MapPin,
@@ -11,9 +11,15 @@ import {
     Calendar,
     Shield,
     CircleUser,
+    Edit,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+
+// Google Fonts
+import { Funnel_Sans, Markazi_Text } from 'next/font/google';
+const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
+export const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
 
 interface UserDetails {
     id: number;
@@ -90,16 +96,33 @@ export default function UserView() {
     }
 
     return (
-        <div className="bg-gray-50 py-10 px-6">
+        <div className={`bg-gray-50 py-10 px-6 rounded-lg ${funnelSans.className}`}>
             <div className="max-w-6xl mx-auto space-y-8">
-                {/* Back link */}
-                <Link
-                    href="/admin/users"
-                    className="inline-flex items-center text-sm text-gray-500 hover:text-gray-800"
-                >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Users
-                </Link>
+                {/* Header Row */}
+                <div className="flex items-center justify-between">
+                    {/* Left: Back Arrow + Title */}
+                    <Link
+                        href="/admin/users"
+                        className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 gap-4"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                        <h1 className={`${markaziText.className} text-3xl font-bold text-gray-900`}>
+                            Profile Information
+                        </h1>
+                    </Link>
+
+                    {/* Right: Edit Icon */}
+                    <Link
+                        href={`/admin/users/${user?.id}/edit`}
+                        className="text-gray-500 hover:text-gray-800"
+                    >
+                        <Edit className="h-5 w-5" /> {/* Use Lucide Edit icon */}
+                    </Link>
+                </div>
+
+
+
+
 
                 {/* Profile Header */}
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 flex flex-col md:flex-row md:items-center md:space-x-8">
@@ -122,9 +145,9 @@ export default function UserView() {
 
                     {/* Info */}
                     <div className="mt-6 md:mt-0">
-                        <h1 className="text-2xl font-semibold text-gray-900">
+                        <h2 className={`${markaziText.className}"text-4xl font-semibold text-gray-900`}>
                             {user.firstName} {user.middleName} {user.lastName}
-                        </h1>
+                        </h2>
                         <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-600">
                             <span className="flex items-center">
                                 <CircleUser className="h-4 w-4 mr-1" /> {user.username}
@@ -137,8 +160,8 @@ export default function UserView() {
                         <div className="mt-4 flex flex-wrap gap-2">
                             <span
                                 className={`px-2 py-1 text-xs font-medium rounded-md ${user.active
-                                        ? 'bg-green-100 text-green-700 border border-green-200'
-                                        : 'bg-red-100 text-red-700 border border-red-200'
+                                    ? 'bg-green-100 text-green-700 border border-green-200'
+                                    : 'bg-red-100 text-red-700 border border-red-200'
                                     }`}
                             >
                                 {user.active ? 'Active' : 'Inactive'}
@@ -196,13 +219,7 @@ export default function UserView() {
     );
 }
 
-function Card({
-    title,
-    children,
-}: {
-    title: string;
-    children: React.ReactNode;
-}) {
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-4">
             <h2 className="text-base font-semibold text-gray-800">{title}</h2>
@@ -211,15 +228,7 @@ function Card({
     );
 }
 
-function InfoItem({
-    icon,
-    label,
-    value,
-}: {
-    icon: React.ReactNode;
-    label: string;
-    value: string;
-}) {
+function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
     return (
         <div className="py-3 flex items-start gap-3">
             <div className="text-gray-500">{icon}</div>

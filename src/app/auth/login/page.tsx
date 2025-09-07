@@ -8,7 +8,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const toastStyles = {
-  duration: 3500, // slightly longer for readability
+  duration: 2000, // slightly longer for readability
   style: {
     padding: '16px 24px',
     borderRadius: '10px',
