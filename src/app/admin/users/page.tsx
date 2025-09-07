@@ -29,7 +29,7 @@ interface PageInfo {
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState<User[]>([]);
-  const [pageInfo, setPageInfo] = useState<PageInfo>({ size: 10, number: 0, totalElements: 0, totalPages: 0 });
+  const [pageInfo, setPageInfo] = useState<PageInfo>({ size: 5, number: 0, totalElements: 0, totalPages: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -86,7 +86,7 @@ export default function UsersPage() {
   }, [fetchUsers]);
 
   return (
-    <div className="space-y-6 px-6">
+    <div className="space-y-6 px-1">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-900">Users Management</h1>
         <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2">
