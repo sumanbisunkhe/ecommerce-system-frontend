@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Fascinate } from 'next/font/google';
 import { Toaster, toast } from 'react-hot-toast';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const toastStyles = {
   duration: 3500, // slightly longer for readability
@@ -45,8 +46,6 @@ const toastStyles = {
     },
   },
 };
-
-
 
 const fascinate = Fascinate({
   subsets: ['latin'],
@@ -90,13 +89,15 @@ export default function LoginPage() {
       } else {
         const errorData = await response.json();
         let message = errorData.message || 'Login failed';
-        // More specific error messages
-        if (message.includes('password')) {
-          message = '🔑 Incorrect password. Please try again.';
-        } else if (message.includes('found')) {
-          message = '👤 Account not found. Please check your username/email.';
-        } else if (message.includes('locked')) {
-          message = '🔒 Account is locked. Please contact support.';
+        // Custom error handling for common cases
+        if (response.status === 401) {
+          message = 'Invalid login credentials.';
+        } else if (response.status === 404) {
+          message = 'User not found.';
+        } else if (errorData.message && errorData.message.toLowerCase().includes('disabled')) {
+          message = 'Your account is disabled. Please contact support.';
+        } else if (errorData.message && errorData.message.toLowerCase().includes('locked')) {
+          message = 'Your account is locked. Please contact support.';
         }
         toast.error(message, toastStyles.error);
       }
@@ -202,13 +203,16 @@ function FloatingInput({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   const [isFocused, setIsFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPassword = type === 'password';
 
   return (
     <div className="relative">
       <input
         id={id}
         name={name}
-        type={type}
+        type={isPassword && showPassword ? 'text' : type}
         value={value}
         onChange={onChange}
         onFocus={() => setIsFocused(true)}
@@ -225,6 +229,16 @@ function FloatingInput({
       >
         {label}
       </label>
+      {isPassword && (
+        <button
+          type="button"
+          tabIndex={-1}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-500 hover:text-indigo-700 focus:outline-none"
+          onClick={() => setShowPassword((prev) => !prev)}
+        >
+          {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+        </button>
+      )}
     </div>
   );
 }
