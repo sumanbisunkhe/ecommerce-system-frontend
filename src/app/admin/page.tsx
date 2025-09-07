@@ -1,6 +1,5 @@
 'use client';
 
-import { Card } from '@/components/ui/card';
 import { FaUsers, FaShoppingCart, FaBoxOpen, FaChartLine } from 'react-icons/fa';
 import Link from 'next/link';
 

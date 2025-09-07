@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { FaUserPlus, FaSearch, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { Eye, Pencil, Trash2, User2 } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import debounce from 'lodash/debounce';
 
 interface User {
@@ -194,18 +195,18 @@ export default function UsersPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <button 
-                        onClick={() => window.location.href = `/admin/users/${user.id}`}
+                      <Link 
+                        href={`/admin/users/${user.id}`}
                         className="text-blue-600 hover:text-blue-900 transition-colors"
                       >
                         <Eye className="w-5 h-5" />
-                      </button>
-                      <button 
-                        onClick={() => window.location.href = `/admin/users/${user.id}/edit`}
+                      </Link>
+                      <Link 
+                        href={`/admin/users/${user.id}/edit`}
                         className="text-indigo-600 hover:text-indigo-900 transition-colors"
                       >
                         <Pencil className="w-5 h-5" />
-                      </button>
+                      </Link>
                       <button 
                         onClick={() => {
                           if (confirm('Are you sure you want to delete this user?')) {
