@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 
 // Define the routes that require authentication
 const protectedRoutes = ['/admin', '/merchant', '/customer', '/checkout']
-const authRoutes = ['/login', '/register']
+const authRoutes = ['/auth/login', '/auth/register']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
       }
     } catch (error) {
       // If user data is invalid, clear cookies and redirect to login
-      const response = NextResponse.redirect(new URL('/login', request.url))
+      const response = NextResponse.redirect(new URL('/auth/login', request.url))
       response.cookies.delete('token')
       response.cookies.delete('user')
       return response
@@ -40,7 +40,7 @@ export function middleware(request: NextRequest) {
   
   // If no token and trying to access protected route, redirect to login
   if (!token && isProtectedRoute) {
-    const response = NextResponse.redirect(new URL('/login', request.url))
+    const response = NextResponse.redirect(new URL('/auth/login', request.url))
     response.cookies.delete('token')
     response.cookies.delete('user')
     return response
@@ -75,7 +75,7 @@ export function middleware(request: NextRequest) {
       
     } catch (error) {
       // If user data is invalid, clear cookies and redirect to login
-      const response = NextResponse.redirect(new URL('/login', request.url))
+      const response = NextResponse.redirect(new URL('/auth/login', request.url))
       response.cookies.delete('token')
       response.cookies.delete('user')
       return response

@@ -6,6 +6,48 @@ import Link from 'next/link';
 import { Fascinate } from 'next/font/google';
 import { Toaster, toast } from 'react-hot-toast';
 
+const toastStyles = {
+  duration: 3500, // slightly longer for readability
+  style: {
+    padding: '16px 24px',
+    borderRadius: '10px',
+    background: '#111827', // very dark, elegant neutral
+    color: '#F9FAFB', // soft white
+    fontWeight: 500,
+    fontSize: '1rem',
+    fontFamily: "'Funnel Sans', sans-serif",
+    boxShadow: '0 8px 20px rgba(0,0,0,0.25)',
+    backdropFilter: 'blur(6px)', // subtle glass effect
+    transition: 'transform 0.2s ease, opacity 0.2s ease',
+  },
+  success: {
+    icon: '✔',
+    style: {
+      background: '#059669', // premium emerald
+      color: '#F9FAFB',
+      boxShadow: '0 8px 20px rgba(5,150,105,0.35)',
+    },
+  },
+  error: {
+    icon: '⚠️',
+    style: {
+      background: '#B91C1C', // deep red for serious alerts
+      color: '#F9FAFB',
+      boxShadow: '0 8px 20px rgba(185,28,28,0.35)',
+    },
+  },
+  loading: {
+    icon: '⏳',
+    style: {
+      background: '#4F46E5', // indigo 600
+      color: '#F9FAFB',
+      boxShadow: '0 8px 20px rgba(79,70,229,0.35)',
+    },
+  },
+};
+
+
+
 const fascinate = Fascinate({
   subsets: ['latin'],
   weight: '400',
@@ -16,7 +58,6 @@ export default function LoginPage() {
     usernameOrEmail: '',
     password: '',
   });
-  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -28,7 +69,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    const loadingToast = toast.loading('Signing in...', toastStyles.loading);
 
     try {
       const response = await fetch('http://localhost:8080/auth/login', {
@@ -42,26 +83,40 @@ export default function LoginPage() {
         document.cookie = `token=${data.data.token}; path=/; max-age=86400`;
         document.cookie = `user=${JSON.stringify(data.data.user)}; path=/; max-age=86400`;
 
-        toast.success('Login successful!');
+        toast.success('Login successful! Welcome back.', toastStyles.success);
         if (data.data.user.roles.includes('ADMIN')) router.push('/admin/analytics');
         else if (data.data.user.roles.includes('MERCHANT')) router.push('/merchant');
         else router.push('/customer');
       } else {
         const errorData = await response.json();
-        const message = errorData.message || 'Login failed';
-        setError(message);
-        toast.error(message);
+        let message = errorData.message || 'Login failed';
+        // More specific error messages
+        if (message.includes('password')) {
+          message = '🔑 Incorrect password. Please try again.';
+        } else if (message.includes('found')) {
+          message = '👤 Account not found. Please check your username/email.';
+        } else if (message.includes('locked')) {
+          message = '🔒 Account is locked. Please contact support.';
+        }
+        toast.error(message, toastStyles.error);
       }
     } catch {
-      setError('Network error. Please try again.');
+      toast.error('Network error. Please try again.', toastStyles.error);
     } finally {
       setIsLoading(false);
+      toast.dismiss(loadingToast);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-12">
-      <Toaster position="top-right" />
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          ...toastStyles,
+          className: 'toast-notification',
+        }}
+      />
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
         {/* Logo */}
         <div className="text-center mb-6">
@@ -85,13 +140,6 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-
-        {/* Error */}
-        {error && (
-          <div className="mb-4 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm">
-            {error}
-          </div>
-        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
