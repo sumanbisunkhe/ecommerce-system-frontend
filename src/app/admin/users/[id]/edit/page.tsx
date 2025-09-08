@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Toaster, toast } from 'react-hot-toast';
-import { View ,ChevronLeft,} from 'lucide-react';
+import { View, ChevronLeft } from 'lucide-react';
+import { notify } from '@/components/ui/Notification';
+import NotificationProvider from '@/components/ui/Notification';
 import Link from 'next/link';
 
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
@@ -102,16 +103,16 @@ export default function EditUser() {
 
       const data = await response.json();
       if (data.success) {
-        toast.success('User updated successfully!');
+        notify.success('User updated successfully!');
         router.push('/admin/users');
       } else {
         const message = data.message;
-        toast.error(message);
+        notify.error(message);
         throw new Error(message);
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to update user';
-      toast.error(message);
+      notify.error(message);
       setError(message);
     } finally {
       setIsSaving(false);
@@ -128,6 +129,7 @@ export default function EditUser() {
 
   return (
     <div className="bg-gray-50 py-10 px-6 rounded-lg">
+      <NotificationProvider />
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           {/* Left: Back Arrow + Text */}

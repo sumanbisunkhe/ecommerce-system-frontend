@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Fascinate, Funnel_Sans } from 'next/font/google';
+import { notify } from '@/components/ui/Notification';
+import NotificationProvider from '@/components/ui/Notification';
 
 const fascinate = Fascinate({
   subsets: ['latin'],
@@ -30,7 +32,7 @@ export default function RegisterPage() {
     roles: ['CUSTOMER'],
   });
 
-  const [error, setError] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -44,7 +46,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    notify.loading('Creating your account...');
 
     try {
       const response = await fetch('http://localhost:8080/auth', {
@@ -54,13 +56,14 @@ export default function RegisterPage() {
       });
 
       if (response.ok) {
+        notify.success('Registration successful!');
         router.push('/auth/login?message=Registration successful. Please login.');
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Registration failed');
+        notify.error(errorData.message || 'Registration failed');
       }
     } catch {
-      setError('Network error. Please try again.');
+      notify.error('Network error. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -92,12 +95,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Error */}
-        {error && (
-          <div className="mb-4 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm">
-            {error}
-          </div>
-        )}
+        <NotificationProvider />
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">

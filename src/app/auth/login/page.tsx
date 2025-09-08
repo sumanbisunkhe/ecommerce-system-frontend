@@ -4,48 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Fascinate } from 'next/font/google';
-import { Toaster, toast } from 'react-hot-toast';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { notify } from '@/components/ui/Notification';
+import NotificationProvider from '@/components/ui/Notification';
 
-const toastStyles = {
-  duration: 2000, // slightly longer for readability
-  style: {
-    padding: '16px 24px',
-    borderRadius: '10px',
-    background: '#111827', // very dark, elegant neutral
-    color: '#F9FAFB', // soft white
-    fontWeight: 500,
-    fontSize: '1rem',
-    fontFamily: "'Funnel Sans', sans-serif",
-    boxShadow: '0 8px 20px rgba(0,0,0,0.25)',
-    backdropFilter: 'blur(6px)', // subtle glass effect
-    transition: 'transform 0.2s ease, opacity 0.2s ease',
-  },
-  success: {
-    icon: '✔',
-    style: {
-      background: '#059669', // premium emerald
-      color: '#F9FAFB',
-      boxShadow: '0 8px 20px rgba(5,150,105,0.35)',
-    },
-  },
-  error: {
-    icon: '⚠️',
-    style: {
-      background: '#B91C1C', // deep red for serious alerts
-      color: '#F9FAFB',
-      boxShadow: '0 8px 20px rgba(185,28,28,0.35)',
-    },
-  },
-  loading: {
-    icon: '⏳',
-    style: {
-      background: '#4F46E5', // indigo 600
-      color: '#F9FAFB',
-      boxShadow: '0 8px 20px rgba(79,70,229,0.35)',
-    },
-  },
-};
+
 
 const fascinate = Fascinate({
   subsets: ['latin'],
@@ -68,7 +31,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const loadingToast = toast.loading('Signing in...', toastStyles.loading);
+    notify.loading('Signing in...');
 
     try {
       const response = await fetch('http://localhost:8080/auth/login', {
@@ -82,7 +45,7 @@ export default function LoginPage() {
         document.cookie = `token=${data.data.token}; path=/; max-age=86400`;
         document.cookie = `user=${JSON.stringify(data.data.user)}; path=/; max-age=86400`;
 
-        toast.success('Login successful! Welcome back.', toastStyles.success);
+        notify.success('Login successful! Welcome back.');
         if (data.data.user.roles.includes('ADMIN')) router.push('/admin/analytics');
         else if (data.data.user.roles.includes('MERCHANT')) router.push('/merchant');
         else router.push('/customer');
@@ -99,25 +62,18 @@ export default function LoginPage() {
         } else if (errorData.message && errorData.message.toLowerCase().includes('locked')) {
           message = 'Your account is locked. Please contact support.';
         }
-        toast.error(message, toastStyles.error);
+        notify.error(message);
       }
     } catch {
-      toast.error('Network error. Please try again.', toastStyles.error);
+      notify.error('Network error. Please try again.');
     } finally {
       setIsLoading(false);
-      toast.dismiss(loadingToast);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-12">
-      <Toaster 
-        position="top-right"
-        toastOptions={{
-          ...toastStyles,
-          className: 'toast-notification',
-        }}
-      />
+      <NotificationProvider />
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
         {/* Logo */}
         <div className="text-center mb-6">

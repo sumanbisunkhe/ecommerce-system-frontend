@@ -6,6 +6,9 @@ import { View, SquarePen, Trash2, User2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import debounce from 'lodash/debounce';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { notify } from '@/components/ui/Notification';
+import NotificationProvider from '@/components/ui/Notification';
 import Pagination from '@/components/ui/pagination';
 
 // Google Fonts
@@ -45,6 +48,8 @@ export default function UsersPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Debounced search
   const debouncedSearch = useCallback(
@@ -93,6 +98,32 @@ export default function UsersPage() {
     fetchUsers();
   }, [fetchUsers]);
 
+  // Delete user handler
+  const handleDeleteUser = async (userId: number) => {
+    setIsDeleting(true);
+
+    try {
+      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      const response = await fetch(`http://localhost:8080/users/${userId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to delete user');
+      }
+
+      notify.success('User deleted successfully');
+      fetchUsers(); // Refresh the users list
+    } catch (err) {
+      notify.error(err instanceof Error ? err.message : 'Failed to delete user');
+    } finally {
+      setIsDeleting(false);
+      setDeleteUserId(null);
+    }
+  };
+
   // Skeleton rows
   const renderSkeletonRows = () =>
     Array.from({ length: pageInfo.size }).map((_, idx) => (
@@ -107,6 +138,16 @@ export default function UsersPage() {
 
   return (
     <div className={`space-y-6 px-2 ${funnelSans.className}`}>
+      <NotificationProvider />
+      <ConfirmDialog
+        isOpen={deleteUserId !== null}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        confirmText="Delete"
+        onConfirm={() => deleteUserId && handleDeleteUser(deleteUserId)}
+        onCancel={() => setDeleteUserId(null)}
+      />
+      
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className={`text-2xl font-bold text-gray-900 ${markaziText.className}`}>Users Management</h1>
@@ -219,8 +260,9 @@ export default function UsersPage() {
                           <SquarePen className="w-5 h-5" />
                         </Link>
                         <button
-                          onClick={() => confirm('Are you sure you want to delete this user?')}
+                          onClick={() => setDeleteUserId(user.id)}
                           className="text-red-600 hover:text-red-900 transition"
+                          disabled={isDeleting}
                         >
                           <Trash2 className="w-5 h-5" />
                         </button>
