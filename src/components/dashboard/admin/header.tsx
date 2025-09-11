@@ -11,9 +11,10 @@ export const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '6
 
 interface AdminHeaderProps {
   user: any;
+  isSidebarCollapsed?: boolean;
 }
 
-export default function AdminHeader({ user }: AdminHeaderProps) {
+export default function AdminHeader({ user, isSidebarCollapsed = false }: AdminHeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -40,8 +41,9 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
   const getSectionTitle = () => {
     if (pathname.startsWith('/admin/analytics')) return 'Analytics';
     if (pathname.startsWith('/admin/users')) return 'User Management';
-    if (pathname.startsWith('/admin/products')) return 'Products';
-    if (pathname.startsWith('/admin/orders')) return 'Orders';
+    if (pathname.startsWith('/admin/categories')) return 'Category Management';
+    if (pathname.startsWith('/admin/products')) return 'Product Management';
+    if (pathname.startsWith('/admin/orders')) return 'Order Management';
 
     if (pathname.startsWith('/admin/settings')) return 'Settings';
     // Add more routes as needed
@@ -49,9 +51,16 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-40">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 lg:ml-64">
-        <div className="flex h-16 items-center justify-between gap-x-4">
+    <header 
+      style={{ 
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        left: isSidebarCollapsed ? '64px' : '256px',
+        transition: 'left 0.3s ease-in-out'
+      }}
+      className="bg-white shadow-sm z-40">
+      <div className="h-16 px-6 flex items-center justify-between gap-x-4 w-full">
           {/* Dynamic Section Title */}
           <div className={`${markaziText.className} text-2xl font-semibold text-black`}>
             {getSectionTitle()}
@@ -126,7 +135,6 @@ export default function AdminHeader({ user }: AdminHeaderProps) {
             </div>
           </div>
         </div>
-      </div>
     </header>
   );
 }

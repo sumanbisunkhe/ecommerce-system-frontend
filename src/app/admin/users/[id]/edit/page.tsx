@@ -128,7 +128,7 @@ export default function EditUser() {
   }
 
   return (
-    <div className="bg-gray-50 py-10 px-6 rounded-lg">
+    <div className="bg-gray-50 py-10 px-6 rounded-lg mt-4">
       <NotificationProvider />
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">

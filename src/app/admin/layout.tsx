@@ -14,6 +14,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(256); // Default expanded width
 
   useEffect(() => {
     const getUserFromCookie = () => {
@@ -42,6 +43,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   }, [router]);
 
+  const handleSidebarCollapse = (collapsed: boolean) => {
+    setIsSidebarCollapsed(collapsed);
+    setSidebarWidth(collapsed ? 70 : 256);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -53,17 +59,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
-      <AdminHeader user={user} />
+      <AdminHeader 
+        user={user} 
+        isSidebarCollapsed={isSidebarCollapsed}
+        sidebarWidth={sidebarWidth}
+      />
 
       <div className="flex flex-1 transition-all duration-300">
         {/* Sidebar */}
-        <AdminSidebar user={user} onCollapse={setIsSidebarCollapsed} />
+        <AdminSidebar 
+          user={user} 
+          onCollapse={handleSidebarCollapse} 
+        />
 
         {/* Main Content */}
         <main
-          className={`flex-1 p-6 transition-all duration-300 ${
-            isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
-          }`}
+          style={{
+            marginLeft: sidebarWidth,
+            paddingTop: '64px', // Height of the header
+            transition: 'margin-left 0.3s ease-in-out'
+          }}
+          className="flex-1 p-6 min-h-screen"
         >
           {children}
         </main>

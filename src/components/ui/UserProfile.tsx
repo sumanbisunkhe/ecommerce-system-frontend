@@ -31,7 +31,7 @@ interface UserProfileProps {
 
 export default function UserProfile({ user }: UserProfileProps) {
   return (
-    <div className={`bg-gray-50 py-10 px-6 rounded-lg ${funnelSans.className}`}>
+    <div className={`bg-gray-50 py-10 px-6 rounded-lg mt-5 ${funnelSans.className}`}>
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">

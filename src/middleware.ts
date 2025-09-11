@@ -24,11 +24,12 @@ export function middleware(request: NextRequest) {
       const userData = JSON.parse(user)
       if (userData.roles.includes('ADMIN')) {
         return NextResponse.redirect(new URL('/admin/analytics', request.url))
-      } else if (userData.roles.includes('MERCHANT')) {
-        return NextResponse.redirect(new URL('/merchant', request.url))
-      } else {
-        return NextResponse.redirect(new URL('/customer', request.url))
-      }
+      } 
+      // else if (userData.roles.includes('MERCHANT')) {
+      //   return NextResponse.redirect(new URL('/merchant', request.url))
+      // } else {
+      //   return NextResponse.redirect(new URL('/customer', request.url))
+      // }
     } catch (error) {
       // If user data is invalid, clear cookies and redirect to login
       const response = NextResponse.redirect(new URL('/auth/login', request.url))
