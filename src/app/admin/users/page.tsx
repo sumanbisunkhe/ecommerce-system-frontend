@@ -134,6 +134,30 @@ export default function UsersPage() {
     }
   };
 
+  // Toggle user status
+  const handleToggleStatus = async (userId: number, currentStatus: boolean) => {
+    try {
+      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      const response = await fetch(`http://localhost:8080/users/${userId}/toggle-status`, {
+        method: 'PUT',
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to toggle user status');
+      }
+
+      notify.success(`User status ${currentStatus ? 'deactivated' : 'activated'} successfully`);
+      fetchUsers(); // Refresh the users list
+    } catch (err) {
+      notify.error(err instanceof Error ? err.message : 'Failed to toggle user status');
+    }
+  };
+
   // Skeleton rows
   const renderSkeletonRows = () =>
     Array.from({ length: pageInfo.size }).map((_, idx) => (
@@ -338,8 +362,9 @@ export default function UsersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      <button
+                        onClick={() => handleToggleStatus(user.id, user.active)}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${
                           user.active 
                             ? 'bg-green-100 text-green-800 ring-1 ring-green-200' 
                             : 'bg-red-100 text-red-800 ring-1 ring-red-200'
@@ -347,7 +372,7 @@ export default function UsersPage() {
                       >
                         <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${user.active ? 'bg-green-400' : 'bg-red-400'}`}></div>
                         {user.active ? 'Active' : 'Inactive'}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
