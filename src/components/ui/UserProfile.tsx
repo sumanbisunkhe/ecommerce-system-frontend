@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { User2, Mail, MapPin, Flag, Calendar, Shield, CircleUser, Edit, ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -30,6 +31,8 @@ interface UserProfileProps {
 }
 
 export default function UserProfile({ user }: UserProfileProps) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <div className={`bg-gray-50 py-10 px-6 rounded-lg mt-5 ${funnelSans.className}`}>
       <div className="max-w-6xl mx-auto space-y-8">
@@ -55,21 +58,42 @@ export default function UserProfile({ user }: UserProfileProps) {
 
         {/* Profile Header */}
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 flex flex-col md:flex-row md:items-center md:space-x-8">
-          {/* Avatar */}
-          <div>
-            {user.profilePictureUrl ? (
-              <Image
-                src={user.profilePictureUrl}
-                alt="profile"
-                width={120}
-                height={120}
-                className="rounded-full border border-gray-200 shadow-sm"
-              />
-            ) : (
-              <div className="w-28 h-28 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
-                <User2 className="w-12 h-12 text-gray-400" />
-              </div>
-            )}
+          {/* Avatar with tooltip */}
+          <div
+            className="relative"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
+            <Link href="/admin/settings">
+              {user.profilePictureUrl ? (
+                <Image
+                  src={user.profilePictureUrl}
+                  alt="profile"
+                  width={120}
+                  height={120}
+                  className="rounded-full border border-gray-200 shadow-sm cursor-pointer"
+                />
+              ) : (
+                <div className="w-28 h-28 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center cursor-pointer">
+                  <User2 className="w-12 h-12 text-gray-400" />
+                </div>
+              )}
+            </Link>
+
+            {/* Tooltip */}
+<div
+  className="absolute left-1/2 top-full mt-2 bg-gray-900 text-white px-3 py-1.5 rounded-md text-xs font-medium shadow-lg border border-gray-200 whitespace-nowrap transform transition-all duration-150 -translate-x-1/2"
+  style={{
+    opacity: hovered ? 1 : 0,
+    transform: `translate(-50%, ${hovered ? '0' : '-8px'})`,
+    pointerEvents: 'none',
+  }}
+>
+  View Image
+  {/* Arrow pointing up */}
+  <div className="absolute left-1/2 -top-1 w-2 h-2 bg-gray-900 rotate-45 -translate-x-1/2"></div>
+</div>
+
           </div>
 
           {/* Info */}
@@ -88,11 +112,10 @@ export default function UserProfile({ user }: UserProfileProps) {
 
             <div className="mt-4 flex flex-wrap gap-2">
               <span
-                className={`px-2 py-1 text-xs font-medium rounded-md ${
-                  user.active
+                className={`px-2 py-1 text-xs font-medium rounded-md ${user.active
                     ? 'bg-green-100 text-green-700 border border-green-200'
                     : 'bg-red-100 text-red-700 border border-red-200'
-                }`}
+                  }`}
               >
                 {user.active ? 'Active' : 'Inactive'}
               </span>

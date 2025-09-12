@@ -126,7 +126,7 @@ export default function AdminSidebar({ user, onCollapse }: AdminSidebarProps) {
                       href={item.href}
                       className={`group relative flex items-center rounded-lg px-3 py-3 transition-all duration-200 overflow-hidden
                         ${isActive
-                          ? "bg-gradient-to-r from-orange-50 to-red-50 text-gray-900 border border-orange-200 shadow-sm"
+                          ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-sm"
                           : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                         }
                       `}
@@ -135,12 +135,12 @@ export default function AdminSidebar({ user, onCollapse }: AdminSidebarProps) {
                     >
                       {/* Active indicator */}
                       {isActive && (
-                        <div className="absolute left-0 w-1 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-r-full" />
+                        <div className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r-full" />
                       )}
 
                       <item.icon
                         className={`h-5 w-5 shrink-0 transition-transform duration-200 z-10
-                          ${isActive ? "text-orange-600 scale-105" : "text-gray-500 group-hover:text-gray-700"}
+                          ${isActive ? "text-blue-600 scale-105" : "text-gray-500 group-hover:text-gray-700"}
                         `}
                       />
 
@@ -156,7 +156,7 @@ export default function AdminSidebar({ user, onCollapse }: AdminSidebarProps) {
                       )}
 
                       {!isCollapsed && isActive && (
-                        <ChevronRight className="h-4 w-4 text-orange-500 ml-auto" />
+                        <ChevronRight className="h-4 w-4 text-blue-500 ml-auto" />
                       )}
                     </Link>
                   </li>

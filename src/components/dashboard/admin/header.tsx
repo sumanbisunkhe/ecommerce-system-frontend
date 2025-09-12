@@ -14,11 +14,30 @@ interface AdminHeaderProps {
   isSidebarCollapsed?: boolean;
 }
 
-export default function AdminHeader({ user, isSidebarCollapsed = false }: AdminHeaderProps) {
+export default function AdminHeader({ user: initialUser, isSidebarCollapsed = false }: AdminHeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [user, setUser] = useState(initialUser);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Listen for user updates
+  useEffect(() => {
+    const handleUserUpdate = (event: CustomEvent) => {
+      setUser(event.detail);
+    };
+
+    window.addEventListener('userUpdate', handleUserUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('userUpdate', handleUserUpdate as EventListener);
+    };
+  }, []);
+
+  // Update user when prop changes
+  useEffect(() => {
+    setUser(initialUser);
+  }, [initialUser]);
 
   const handleLogout = () => {
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
@@ -50,6 +69,10 @@ export default function AdminHeader({ user, isSidebarCollapsed = false }: AdminH
     return '';
   };
 
+  const handleDropdownItemClick = () => {
+    setIsProfileOpen(false);
+  };
+
   return (
     <header 
       style={{ 
@@ -61,80 +84,87 @@ export default function AdminHeader({ user, isSidebarCollapsed = false }: AdminH
       }}
       className="bg-white shadow-sm z-40">
       <div className="h-16 px-6 flex items-center justify-between gap-x-4 w-full">
-          {/* Dynamic Section Title */}
-          <div className={`${markaziText.className} text-2xl font-semibold text-black`}>
-            {getSectionTitle()}
-          </div>
+        {/* Dynamic Section Title */}
+        <div className={`${markaziText.className} text-2xl font-semibold text-black`}>
+          {getSectionTitle()}
+        </div>
 
-          {/* Profile Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition"
-            >
-              <div className="relative">
-                {user?.profilePictureUrl ? (
-                  <img
-                    src={user.profilePictureUrl}
-                    alt="Profile"
-                    className="h-10 w-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center">
-                    <span className="text-sm font-medium text-white">
-                      {user?.firstName?.[0]}
-                      {user?.lastName?.[0]}
-                    </span>
-                  </div>
-                )}
-                <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center">
-                  <ShieldCheck className="h-3 w-3 text-white" />
+        {/* Profile Dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition"
+          >
+            <div className="relative">
+              {user?.profilePictureUrl ? (
+                <img
+                  src={user.profilePictureUrl}
+                  alt="Profile"
+                  className="h-10 w-10 rounded-full object-cover"
+                  // Add key to force re-render when URL changes
+                  key={user.profilePictureUrl}
+                />
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center">
+                  <span className="text-sm font-medium text-white">
+                    {user?.firstName?.[0]}
+                    {user?.lastName?.[0]}
+                  </span>
                 </div>
+              )}
+              <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center">
+                <ShieldCheck className="h-3 w-3 text-white" />
               </div>
-
-              <div className="hidden md:block text-left">
-                <p className="text-sm font-semibold text-gray-900">
-                  {user?.firstName} {user?.lastName}
-                </p>
-                <p className="text-xs text-gray-500">Administrator</p>
-              </div>
-
-              <ChevronDown
-                className={`h-4 w-4 text-gray-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`}
-              />
-            </button>
-
-            {/* Dropdown */}
-            <div
-              className={`absolute right-0 mt-2 w-52 rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transform transition-all duration-200 origin-top ${isProfileOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
-                }`}
-            >
-              <Link
-                href={`/admin/users/${user?.id}`}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                <Eye className="h-4 w-4" />
-                View Profile
-              </Link>
-
-              <Link
-                href="/admin/settings"
-                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                <Settings className="h-4 w-4" />
-                Settings
-              </Link>
-
-              <button
-                onClick={handleLogout}
-                className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </button>
             </div>
+
+            <div className="hidden md:block text-left">
+              <p className="text-sm font-semibold text-gray-900">
+                {user?.firstName} {user?.lastName}
+              </p>
+              <p className="text-xs text-gray-500">Administrator</p>
+            </div>
+
+            <ChevronDown
+              className={`h-4 w-4 text-gray-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+
+          {/* Dropdown */}
+          <div
+            className={`absolute right-0 mt-2 w-52 rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transform transition-all duration-200 origin-top ${isProfileOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
+              }`}
+          >
+            <Link
+              href={`/admin/users/${user?.id}`}
+              onClick={handleDropdownItemClick}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              <Eye className="h-4 w-4" />
+              View Profile
+            </Link>
+
+            <Link
+              href="/admin/settings"
+              onClick={handleDropdownItemClick}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
+
+            <button
+              onClick={() => {
+                handleDropdownItemClick();
+                handleLogout();
+              }}
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
           </div>
         </div>
+      </div>
     </header>
   );
 }

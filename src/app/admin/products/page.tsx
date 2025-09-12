@@ -10,10 +10,8 @@ import {
     ArrowUp,
     ArrowDown,
     Package2,
-    CircleDollarSign,
     CheckCircle2,
     XCircle,
-    Tag,
     CopyPlus
 } from 'lucide-react';
 import Link from 'next/link';
@@ -101,13 +99,13 @@ export default function ProductsPage() {
         const fetchCategories = async () => {
             try {
                 const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                const response = await fetch('http://localhost:8080/categories', {
+                const response = await fetch('http://localhost:8080/categories/all', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (!response.ok) throw new Error('Failed to fetch categories');
                 const data = await response.json();
                 if (data.success) {
-                    setCategories(data.data.content);
+                    setCategories(data.data);
                 }
             } catch (err) {
                 console.error('Error fetching categories:', err);
@@ -220,10 +218,7 @@ export default function ProductsPage() {
         ));
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(price);
+        return `रु ${price.toFixed(2)}`;
     };
 
     const getSortIcon = () => {
@@ -235,8 +230,8 @@ export default function ProductsPage() {
     };
 
     return (
-    <div className={` ${funnelSans.className}`}>
-          
+        <div className={` ${funnelSans.className}`}>
+
             <main className="space-y-6 px-4">
                 <NotificationProvider />
                 <ConfirmDialog
@@ -252,96 +247,96 @@ export default function ProductsPage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                     <div className="p-6 border-b border-gray-200 bg-gray-50/50">
                         <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-4 flex-1">
-                            {/* Search */}
-                            <div className="flex-1 min-w-[300px] relative group">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Search className="h-4 w-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                            <div className="flex items-center gap-4 flex-1">
+                                {/* Search */}
+                                <div className="flex-1 min-w-[300px] relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Search className="h-4 w-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Search products by name or description..."
+                                        className="block w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                                        onChange={e => debouncedSearch(e.target.value)}
+                                    />
                                 </div>
-                                <input
-                                    type="text"
-                                    placeholder="Search products by name or description..."
-                                    className="block w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
-                                    onChange={e => debouncedSearch(e.target.value)}
-                                />
-                            </div>
 
-                            {/* Category Filter */}
-                            <div className="min-w-[200px]">
-                                <select
-                                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                                    value={selectedCategory}
-                                    onChange={e => setSelectedCategory(e.target.value)}
-                                >
-                                    <option value="all">All Categories</option>
-                                    {categories.map(category => (
-                                        <option key={category.id} value={category.id}>
-                                            {category.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Status Filter */}
-                            <div className="min-w-[150px]">
-                                <select
-                                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                                    value={activeFilter}
-                                    onChange={e => setActiveFilter(e.target.value)}
-                                >
-                                    <option value="all">All Status</option>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                </select>
-                            </div>
-
-                            {/* Sort Control */}
-                            <div className="flex items-center min-w-[200px]">
-                                <div className="relative flex-1">
+                                {/* Category Filter */}
+                                <div className="min-w-[200px]">
                                     <select
                                         className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                                        value={sortBy}
-                                        onChange={e => setSortBy(e.target.value)}
+                                        value={selectedCategory}
+                                        onChange={e => setSelectedCategory(e.target.value)}
                                     >
-                                        <option value="updatedAt">Last Updated</option>
-                                        <option value="createdAt">Created Date</option>
-                                        <option value="name">Name</option>
-                                        <option value="price">Price</option>
-                                        <option value="stockQuantity">Stock</option>
+                                        <option value="all">All Categories</option>
+                                        {categories.map(category => (
+                                            <option key={category.id} value={category.id}>
+                                                {category.name}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
-                                <button
-                                    onClick={() => setSortOrder(current => (current === 'asc' ? 'desc' : 'asc'))}
-                                    className="ml-2 p-2.5 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                                    title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
-                                >
-                                    {getSortIcon()}
-                                </button>
+
+                                {/* Status Filter */}
+                                <div className="min-w-[150px]">
+                                    <select
+                                        className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                        value={activeFilter}
+                                        onChange={e => setActiveFilter(e.target.value)}
+                                    >
+                                        <option value="all">All Status</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+
+                                {/* Sort Control */}
+                                <div className="flex items-center min-w-[200px]">
+                                    <div className="relative flex-1">
+                                        <select
+                                            className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                            value={sortBy}
+                                            onChange={e => setSortBy(e.target.value)}
+                                        >
+                                            <option value="updatedAt">Last Updated</option>
+                                            <option value="createdAt">Created Date</option>
+                                            <option value="name">Name</option>
+                                            <option value="price">Price</option>
+                                            <option value="stockQuantity">Stock</option>
+                                        </select>
+                                    </div>
+                                    <button
+                                        onClick={() => setSortOrder(current => (current === 'asc' ? 'desc' : 'asc'))}
+                                        className="ml-2 p-2.5 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                        title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+                                    >
+                                        {getSortIcon()}
+                                    </button>
+                                </div>
+
+                                {/* Page Size */}
+                                <div className="min-w-[120px]">
+                                    <select
+                                        className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                        value={pageInfo.size}
+                                        onChange={e => setPageInfo(prev => ({ ...prev, size: Number(e.target.value), number: 1 }))}
+                                    >
+                                        {[5, 10, 20, 50, 100].map(n => (
+                                            <option key={n} value={n}>
+                                                {n} per page
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
 
-                            {/* Page Size */}
-                            <div className="min-w-[120px]">
-                                <select
-                                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                                    value={pageInfo.size}
-                                    onChange={e => setPageInfo(prev => ({ ...prev, size: Number(e.target.value), number: 1 }))}
-                                >
-                                    {[5, 10, 20, 50, 100].map(n => (
-                                        <option key={n} value={n}>
-                                            {n} per page
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                          </div>
-
-                          <Link
-                            href="/admin/products/new"
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 transition shadow-sm hover:shadow-md whitespace-nowrap"
-                          >
-                            <CopyPlus className="w-4 h-4" />
-                            New
-                          </Link>
+                            <Link
+                                href="/admin/products/new"
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2 transition shadow-sm hover:shadow-md whitespace-nowrap"
+                            >
+                                <CopyPlus className="w-4 h-4" />
+                                New
+                            </Link>
                         </div>
 
                         {/* Results Summary */}
@@ -433,7 +428,6 @@ export default function ProductsPage() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center text-sm font-medium text-gray-900">
-                                                    <CircleDollarSign className="h-4 w-4 text-gray-400 mr-1" />
                                                     {formatPrice(product.price)}
                                                 </div>
                                             </td>

@@ -24,7 +24,7 @@ interface ProductFormData {
     price: number;
     stockQuantity: number;
     active: boolean;
-    categoryId: number;
+    categoryId: number | null;
 }
 
 export default function NewProductPage() {
@@ -39,7 +39,7 @@ export default function NewProductPage() {
         price: 0,
         stockQuantity: 0,
         active: true,
-        categoryId: 0,
+        categoryId: null,
     });
 
 
@@ -84,12 +84,14 @@ export default function NewProductPage() {
         try {
             const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
             const formDataToSend = new FormData();
-            formDataToSend.append('product', JSON.stringify(formData));
+            formDataToSend.append('product', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
             if (selectedImage) formDataToSend.append('image', selectedImage);
 
             const response = await fetch('http://localhost:8080/products', {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
                 body: formDataToSend
             });
 
@@ -114,7 +116,7 @@ export default function NewProductPage() {
         const { name, value, type } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'number' ? Number(value) : value
+            [name]: type === 'number' || name === 'categoryId' ? (value === '' ? null : Number(value)) : value
         }));
     };
 
@@ -184,8 +186,13 @@ export default function NewProductPage() {
                                     </label>
                                     <div className="relative">
                                         {imagePreview ? (
-                                            <div className="relative w-full h-44 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 overflow-hidden">
-                                                <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                                            <div className="relative w-full h-44 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 overflow-hidden flex items-center justify-center">
+                                                <Image
+                                                    src={imagePreview}
+                                                    alt="Preview"
+                                                    fill
+                                                    className="object-contain" // use object-contain to fit the whole image
+                                                />
                                                 <button
                                                     type="button"
                                                     onClick={removeImage}
@@ -201,11 +208,17 @@ export default function NewProductPage() {
                                                     <span className="font-medium">Click to upload</span>
                                                 </p>
                                                 <p className="text-xs text-gray-400">PNG, JPG or GIF (MAX. 10MB)</p>
-                                                <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={handleImageChange}
+                                                />
                                             </label>
                                         )}
                                     </div>
                                 </div>
+
 
                                 {/* Form Fields */}
                                 <div className="lg:col-span-2 space-y-4">
@@ -261,7 +274,7 @@ export default function NewProductPage() {
                                         Price <span className="text-red-500 ml-1">*</span>
                                     </label>
                                     <div className="relative">
-                                        <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500">$</span>
+                                        <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500">रु</span>
                                         <input
                                             type="number"
                                             id="price"

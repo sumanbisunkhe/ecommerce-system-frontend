@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from '@/components/dashboard/admin/sidebar-nav';
 import AdminHeader from '@/components/dashboard/admin/header';
+import NotificationProvider from '@/components/ui/Notification';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -84,6 +85,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {children}
         </main>
       </div>
+
+      <NotificationProvider />
     </div>
   );
 }

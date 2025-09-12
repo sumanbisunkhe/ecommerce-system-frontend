@@ -1,13 +1,16 @@
 //src\app\layout.tsx
 
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Fascinate,Inter } from 'next/font/google'
 import './globals.css' 
 
 const inter = Inter({ subsets: ['latin'] })
-
+const fascinate = Fascinate({
+  subsets: ["latin"],
+  weight: "400",
+})
 export const metadata: Metadata = {
-  title: 'E-Commerce App',
+  title: 'HoT🔥sHoP',
   description: 'Multi-role e-commerce platform',
 }
 
