@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import AdminHeader from '@/components/dashboard/admin/header';
 import { Funnel_Sans } from 'next/font/google';
 import { notify } from '@/components/ui/Notification';
+import NotificationProvider from '@/components/ui/Notification';
 import toast from 'react-hot-toast';
 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
@@ -498,6 +499,7 @@ export default function SettingsPage() {
 
   return (
     <div className={`bg-gray-50 px-6  mt-6 rounded-lg ${funnelSans.className}`}>
+      <NotificationProvider />
       <AdminHeader user={user} />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
