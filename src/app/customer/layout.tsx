@@ -28,12 +28,19 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
         
         if (!userData.roles.includes('CUSTOMER')) {
           router.push('/unauthorized');
+          return;
+        }
+
+        // Always redirect root customer path to products
+        if (window.location.pathname === '/customer') {
+          router.replace('/customer/products');
+          return;
         }
       } catch (error) {
-        router.push('/login');
+        router.push('/auth/login');
       }
     } else {
-      router.push('/login');
+      router.push('/auth/login');
     }
     setIsLoading(false);
   }, [router]);

@@ -42,13 +42,16 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        document.cookie = `token=${data.data.token}; path=/; max-age=86400`;
-        document.cookie = `user=${JSON.stringify(data.data.user)}; path=/; max-age=86400`;
-
-        notify.success('Login successful! Welcome back.');
-        if (data.data.user.roles.includes('ADMIN')) router.push('/admin/analytics');
-        else if (data.data.user.roles.includes('MERCHANT')) router.push('/merchant');
-        else router.push('/customer');
+        document.cookie = `token=${data.data.token}; path=/`;
+        document.cookie = `user=${encodeURIComponent(JSON.stringify(data.data.user))}; path=/`;
+        
+        if (data.success) {
+          if (data.data.user.roles.includes('ADMIN')) {
+            router.push('/admin/analytics');
+          } else if (data.data.user.roles.includes('CUSTOMER')) {
+            router.push('/customer/products');
+          }
+        }
       } else {
         const errorData = await response.json();
         let message = errorData.message || 'Login failed';

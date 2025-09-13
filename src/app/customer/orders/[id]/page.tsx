@@ -38,11 +38,20 @@ interface Order {
     shippingCost: number | null;
 }
 
+interface PaymentResponse {
+  pidx: string;
+  payment_url: string;
+  expires_at: string;
+  purchase_order_id: string | null;
+  purchase_order_name: string | null;
+}
+
 export default function OrderDetailsPage() {
     const { id } = useParams();
     const [order, setOrder] = useState<Order | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedPayment, setSelectedPayment] = useState<'KHALTI' | 'COD'>('KHALTI');
+    const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
@@ -114,6 +123,42 @@ export default function OrderDetailsPage() {
             default: return 'bg-gray-50 text-gray-700';
         }
     };
+
+   const initiatePayment = async () => {
+    try {
+        setIsInitiatingPayment(true);
+        const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('token='))
+            ?.split('=')[1];
+
+        // This is correct - using query parameter
+        const response = await fetch(
+            `http://localhost:8080/payment/initiate?orderId=${id}`,
+            {
+                method: 'POST', // Ensure this is a POST request
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (!response.ok) throw new Error('Failed to initiate payment');
+
+        const data = await response.json();
+        if (data.success) {
+            window.location.href = data.data.payment_url;
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error: any) {
+        notify.error(error.message);
+    } finally {
+        setIsInitiatingPayment(false);
+    }
+};
 
     if (isLoading) {
         return (
@@ -273,20 +318,31 @@ export default function OrderDetailsPage() {
 
                 <button
                     onClick={() => {
-                        if (selectedPayment) {
-                            // Add confirmation logic here
-                            notify.success(`Order confirmed with ${selectedPayment} payment!`);
+                        if (selectedPayment === 'KHALTI') {
+                            initiatePayment();
+                        } else {
+                            notify.success('Order confirmed with Cash on Delivery!');
+                            // Add COD logic here
                         }
                     }}
-                    disabled={!selectedPayment}
+                    disabled={!selectedPayment || isInitiatingPayment}
                     className={`px-6 py-3 font-semibold rounded-lg flex items-center gap-2 shadow-md
-                        ${selectedPayment
-                            ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ${!selectedPayment || isInitiatingPayment
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
                         } transition-all duration-200`}
                 >
-                    Confirm Order
-                    <CheckCircle2 className="h-5 w-5" />
+                    {isInitiatingPayment ? (
+                        <>
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            Initiating Payment...
+                        </>
+                    ) : (
+                        <>
+                            Confirm Order
+                            <CheckCircle2 className="h-5 w-5" />
+                        </>
+                    )}
                 </button>
             </div>
         </div>

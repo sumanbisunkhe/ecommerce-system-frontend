@@ -24,12 +24,9 @@ export function middleware(request: NextRequest) {
       const userData = JSON.parse(user)
       if (userData.roles.includes('ADMIN')) {
         return NextResponse.redirect(new URL('/admin/analytics', request.url))
-      } 
-      // else if (userData.roles.includes('MERCHANT')) {
-      //   return NextResponse.redirect(new URL('/merchant', request.url))
-      // } else {
-      //   return NextResponse.redirect(new URL('/customer', request.url))
-      // }
+      } else if (userData.roles.includes('CUSTOMER')) {
+        return NextResponse.redirect(new URL('/customer/products', request.url))
+      }
     } catch (error) {
       // If user data is invalid, clear cookies and redirect to login
       const response = NextResponse.redirect(new URL('/auth/login', request.url))
@@ -56,14 +53,14 @@ export function middleware(request: NextRequest) {
       if (userData.roles.includes('ADMIN')) {
         return NextResponse.next()
       }
-      
-      // Merchant can only access merchant routes
-      if (userData.roles.includes('MERCHANT') && pathname.startsWith('/merchant')) {
-        return NextResponse.next()
-      }
+
       
       // Customer can only access customer routes
-      if (userData.roles.includes('CUSTOMER') && pathname.startsWith('/customer')) {
+      if (userData.roles.includes('CUSTOMER')) {
+        // Redirect root customer path to products
+        if (pathname === '/customer') {
+          return NextResponse.redirect(new URL('/customer/products', request.url))
+        }
         return NextResponse.next()
       }
       
@@ -71,7 +68,7 @@ export function middleware(request: NextRequest) {
       if (userData.roles.includes('MERCHANT')) {
         return NextResponse.redirect(new URL('/merchant', request.url))
       } else if (userData.roles.includes('CUSTOMER')) {
-        return NextResponse.redirect(new URL('/customer', request.url))
+        return NextResponse.redirect(new URL('/customer/products', request.url))
       }
       
     } catch (error) {
