@@ -49,12 +49,9 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-100">
       <CustomerHeader user={user} />
-      {/* <div className="flex">
-        <CustomerSidebar />
-        <main className="flex-1 p-6">
-          {children}
-        </main>
-      </div> */}
+      <main className="min-h-screen">
+        {children}
+      </main>
     </div>
   );
 }
