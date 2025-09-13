@@ -3,11 +3,17 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Bell, ChevronDown, Settings, LogOut, Eye, ShieldCheck } from 'lucide-react';
+import { Bell, ChevronDown, Settings, LogOut, Eye, ShieldCheck, Camera, KeyRound, ChevronRight } from 'lucide-react';
 
 // Google Fonts
 import { Markazi_Text } from 'next/font/google';
 export const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
+import { Funnel_Sans } from "next/font/google"
+
+const funnelSans = Funnel_Sans({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+})
 
 interface AdminHeaderProps {
   user: any;
@@ -16,25 +22,22 @@ interface AdminHeaderProps {
 
 export default function AdminHeader({ user: initialUser, isSidebarCollapsed = false }: AdminHeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [showSettingsSubmenu, setShowSettingsSubmenu] = useState(false);
   const [user, setUser] = useState(initialUser);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
 
-  // Listen for user updates
   useEffect(() => {
     const handleUserUpdate = (event: CustomEvent) => {
       setUser(event.detail);
     };
-
     window.addEventListener('userUpdate', handleUserUpdate as EventListener);
-
     return () => {
       window.removeEventListener('userUpdate', handleUserUpdate as EventListener);
     };
   }, []);
 
-  // Update user when prop changes
   useEffect(() => {
     setUser(initialUser);
   }, [initialUser]);
@@ -45,32 +48,30 @@ export default function AdminHeader({ user: initialUser, isSidebarCollapsed = fa
     router.push('/auth/login');
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
+        setShowSettingsSubmenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Determine the current section title dynamically
   const getSectionTitle = () => {
     if (pathname.startsWith('/admin/analytics')) return 'Analytics';
     if (pathname.startsWith('/admin/users')) return 'User Management';
     if (pathname.startsWith('/admin/categories')) return 'Category Management';
     if (pathname.startsWith('/admin/products')) return 'Product Management';
     if (pathname.startsWith('/admin/orders')) return 'Order Management';
-
     if (pathname.startsWith('/admin/settings')) return 'Settings';
-    // Add more routes as needed
     return '';
   };
 
   const handleDropdownItemClick = () => {
     setIsProfileOpen(false);
+    setShowSettingsSubmenu(false);
   };
 
   return (
@@ -101,7 +102,6 @@ export default function AdminHeader({ user: initialUser, isSidebarCollapsed = fa
                   src={user.profilePictureUrl}
                   alt="Profile"
                   className="h-10 w-10 rounded-full object-cover"
-                  // Add key to force re-render when URL changes
                   key={user.profilePictureUrl}
                 />
               ) : (
@@ -131,11 +131,12 @@ export default function AdminHeader({ user: initialUser, isSidebarCollapsed = fa
 
           {/* Dropdown */}
           <div
-            className={`absolute right-0 mt-2 w-52 rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transform transition-all duration-200 origin-top ${isProfileOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
-              }`}
+            className={`${funnelSans.className} absolute right-0 mt-2 w-52 rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transform transition-all duration-200 origin-top ${
+              isProfileOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
+            }`}
           >
             <Link
-              href={`/admin/users/${user?.id}`}
+              href={`/admin/users/${user?.id}?isCurrentUser=true`}
               onClick={handleDropdownItemClick}
               className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
@@ -143,14 +144,42 @@ export default function AdminHeader({ user: initialUser, isSidebarCollapsed = fa
               View Profile
             </Link>
 
-            <Link
-              href="/admin/settings"
-              onClick={handleDropdownItemClick}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            >
-              <Settings className="h-4 w-4" />
-              Settings
-            </Link>
+            {/* Settings with nested submenu */}
+            <div>
+              <button
+                onClick={() => setShowSettingsSubmenu(!showSettingsSubmenu)}
+                className="flex w-full items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <span className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </span>
+                <ChevronRight
+                  className={`h-4 w-4 text-gray-400 transition-transform ${showSettingsSubmenu ? 'rotate-90' : ''}`}
+                />
+              </button>
+
+              {showSettingsSubmenu && (
+                <div className="pl-6">
+                  <Link
+                    href="/admin/settings?tab=profile"
+                    onClick={handleDropdownItemClick}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <Camera className="h-4 w-4" />
+                    Change Picture
+                  </Link>
+                  <Link
+                    href="/admin/settings?tab=security"
+                    onClick={handleDropdownItemClick}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <KeyRound className="h-4 w-4" />
+                    Change Password
+                  </Link>
+                </div>
+              )}
+            </div>
 
             <button
               onClick={() => {

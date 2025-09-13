@@ -6,6 +6,7 @@ import { Funnel_Sans } from 'next/font/google';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import toast from 'react-hot-toast';
+import { useSearchParams } from 'next/navigation';
 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
 
@@ -320,12 +321,15 @@ const ImageCropper = ({
 
 // ---------------------- Settings Page ---------------------- //
 export default function SettingsPage() {
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [profilePictureLoading, setProfilePictureLoading] = useState(false);
   const [cropperOpen, setCropperOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security'>(
+    searchParams.get('tab') === 'security' ? 'security' : 'profile'
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -342,6 +346,13 @@ export default function SettingsPage() {
       setUser(userData);
     }
   }, []);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'security' || tab === 'profile') {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;

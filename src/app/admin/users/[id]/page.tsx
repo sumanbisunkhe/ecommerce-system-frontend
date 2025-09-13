@@ -1,14 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import UserProfile, { UserDetails } from '@/components/ui/UserProfile';
+import { notify } from '@/components/ui/Notification';
+import NotificationProvider from '@/components/ui/Notification';
 
 export default function UserViewPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<UserDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const isCurrentUser = searchParams.get('isCurrentUser') === 'true';
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -29,6 +33,7 @@ export default function UserViewPage() {
         else throw new Error(data.message);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
+        notify.error('Failed to load user profile');
       } finally {
         setIsLoading(false);
       }
@@ -61,5 +66,10 @@ export default function UserViewPage() {
     );
   }
 
-  return <UserProfile user={user} />;
+  return (
+    <>
+      <NotificationProvider />
+      <UserProfile user={user} isCurrentUser={isCurrentUser} />
+    </>
+  );
 }

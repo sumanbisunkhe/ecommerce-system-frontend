@@ -3,8 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Fascinate } from "next/font/google"
-import { Funnel_Sans } from "next/font/google"
+import { Fascinate,Funnel_Sans } from "next/font/google"
 
 import {
   LayoutDashboard,
