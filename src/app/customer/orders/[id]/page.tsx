@@ -37,6 +37,7 @@ interface Order {
     paymentStatus: string;
     shippingAddress: string;
     shippingCost: number | null;
+    subtotal: number;
 }
 
 interface PaymentResponse {
@@ -178,6 +179,8 @@ export default function OrderDetailsPage() {
         }
     };
 
+    const isPaymentCompleted = order?.paymentStatus === 'COMPLETED';
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -216,7 +219,7 @@ export default function OrderDetailsPage() {
 
                 <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
                     <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)} {order.status}
+                        Delivery:{getStatusIcon(order.status)} {order.status}
                     </span>
                     <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.paymentStatus)}`}>
                         Payment: {order.paymentStatus}
@@ -276,7 +279,7 @@ export default function OrderDetailsPage() {
                             <h2 className="font-medium text-gray-900 mb-3 text-lg">Order Summary</h2>
                             <div className="flex justify-between text-sm">
                                 <span>Subtotal:</span>
-                                <span className="font-medium">रु{order.totalAmount.toLocaleString('en-IN')}</span>
+                                <span className="font-medium">रु{order.subtotal.toLocaleString('en-IN')}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span>Shipping Cost:</span>
@@ -343,9 +346,9 @@ export default function OrderDetailsPage() {
                             // Add COD logic here
                         }
                     }}
-                    disabled={!selectedPayment || isInitiatingPayment}
+                    disabled={!selectedPayment || isInitiatingPayment || isPaymentCompleted}
                     className={`px-6 py-3 font-semibold rounded-lg flex items-center gap-2 shadow-md
-                        ${!selectedPayment || isInitiatingPayment
+                        ${!selectedPayment || isInitiatingPayment || isPaymentCompleted
                             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
                         } transition-all duration-200`}
@@ -357,7 +360,7 @@ export default function OrderDetailsPage() {
                         </>
                     ) : (
                         <>
-                            Confirm Order
+                            {isPaymentCompleted ? 'Payment Completed' : 'Confirm Order'}
                             <CheckCircle2 className="h-5 w-5" />
                         </>
                     )}

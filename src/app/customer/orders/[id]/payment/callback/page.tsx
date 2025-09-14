@@ -44,9 +44,8 @@ export default function PaymentCallback() {
                 setPaymentData(data);
 
                 if (data.success) {
-                    notify.success('Payment verification successful!');
+                    // Show single success notification
                     setTimeout(() => {
-                        // Clean redirect back to order page
                         const orderId = searchParams.get('purchase_order_id');
                         router.replace(`/customer/orders/${orderId}`);
                     }, 2000);
@@ -54,6 +53,7 @@ export default function PaymentCallback() {
                     throw new Error(data.message || 'Payment verification failed');
                 }
             } catch (error: any) {
+                // Show single error notification
                 notify.error(error.message);
                 setTimeout(() => router.back(), 2000);
             } finally {

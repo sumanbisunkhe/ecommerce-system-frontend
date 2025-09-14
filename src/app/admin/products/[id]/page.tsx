@@ -11,6 +11,12 @@ import { Funnel_Sans, Markazi_Text } from 'next/font/google';
 const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
 
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+}
+
 interface Product {
   id: number;
   name: string;
@@ -19,10 +25,6 @@ interface Product {
   stockQuantity: number;
   active: boolean;
   categoryId: number;
-  category: {
-    id: number;
-    name: string;
-  };
   imageUrl: string;
   createdAt: string;
   updatedAt: string;
@@ -31,26 +33,45 @@ interface Product {
 export default function ProductViewPage() {
   const params = useParams();
   const [product, setProduct] = useState<Product | null>(null);
+  const [category, setCategory] = useState<Category | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndCategory = async () => {
       try {
         const token = document.cookie
           .split('; ')
           .find((row) => row.startsWith('token='))
           ?.split('=')[1];
 
-        const response = await fetch(`http://localhost:8080/products/${params.id}`, {
+        // Fetch product
+        const productResponse = await fetch(`http://localhost:8080/products/${params.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!response.ok) throw new Error('Failed to fetch product details');
-        const data = await response.json();
+        if (!productResponse.ok) throw new Error('Failed to fetch product details');
+        const productData = await productResponse.json();
 
-        if (data.success) setProduct(data.data);
-        else throw new Error(data.message);
+        if (productData.success) {
+          setProduct(productData.data);
+
+          // Fetch category if product has categoryId
+          if (productData.data.categoryId) {
+            const categoryResponse = await fetch(`http://localhost:8080/categories/${productData.data.categoryId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (categoryResponse.ok) {
+              const categoryData = await categoryResponse.json();
+              if (categoryData.success) {
+                setCategory(categoryData.data);
+              }
+            }
+          }
+        } else {
+          throw new Error(productData.message);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -58,7 +79,7 @@ export default function ProductViewPage() {
       }
     };
 
-    if (params.id) fetchProduct();
+    if (params.id) fetchProductAndCategory();
   }, [params.id]);
 
   if (isLoading) {
@@ -157,8 +178,13 @@ export default function ProductViewPage() {
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Category</h3>
                   <p className="mt-1 text-lg font-semibold text-gray-900">
-                    {product.category?.name || 'Uncategorized'}
+                    {category?.name || 'Loading...'}
                   </p>
+                  {category?.description && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      {category.description}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Status</h3>

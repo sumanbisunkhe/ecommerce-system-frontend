@@ -134,109 +134,135 @@ export default function OrdersPage() {
     fetchOrders();
   }, []);
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'COMPLETED':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      case 'CANCELLED':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      case 'PENDING':
-        return <Clock className="h-5 w-5 text-amber-500" />;
-      default:
-        return <AlertCircle className="h-5 w-5 text-gray-500" />;
-    }
+  const getStatusBadge = (status: string, type: 'delivery' | 'payment') => {
+    const styles = {
+      COMPLETED: 'bg-green-100 text-green-800 ring-green-600/20',
+      CANCELLED: 'bg-red-100 text-red-800 ring-red-600/20',
+      PENDING: 'bg-amber-100 text-amber-800 ring-amber-600/20',
+      SHIPPED: 'bg-blue-100 text-blue-800 ring-blue-600/20',
+      DELIVERED: 'bg-emerald-100 text-emerald-800 ring-emerald-600/20',
+      FAILED: 'bg-red-100 text-red-800 ring-red-600/20',
+    };
+
+    return (
+      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ring-1 ring-inset ${styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800 ring-gray-600/20'}`}>
+        {type}: {status.toLowerCase()}
+      </span>
+    );
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto" />
+          <p className="mt-2 text-sm text-gray-500">Loading your orders...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`${funnelSans.className} container mx-auto px-20 py-8 pt-24`}>
+    <div className={`${funnelSans.className} min-h-screen bg-gray-50 pt-20`}>
       <NotificationProvider />
       
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <Package2 className="h-5 w-5 text-blue-600" />
-            <h1 className="text-xl font-semibold text-gray-900">Your Orders</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* Header */}
+          <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Package2 className="h-6 w-6 text-blue-600" />
+                <h1 className="text-xl font-semibold text-gray-900">Order History</h1>
+              </div>
+              <span className="text-sm text-gray-500">
+                {pageInfo.totalElements} {pageInfo.totalElements === 1 ? 'order' : 'orders'} total
+              </span>
+            </div>
           </div>
-        </div>
 
-        {orders.length === 0 ? (
-          <div className="p-8 text-center">
-            <Package2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-            <p className="text-gray-500">Start shopping to place your first order.</p>
-          </div>
-        ) : (
-          <div className="grid gap-6 p-6">
-            {orders.map((order) => (
+          {orders.length === 0 ? (
+            <div className="p-12 text-center">
+              <Package2 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+              <p className="text-gray-500 mb-6">When you place orders, they'll appear here.</p>
               <Link 
-                key={order.id} 
-                href={`/customer/orders/${order.id}`}
-                className="block bg-white rounded-lg border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all duration-200"
+                href="/customer/products"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
-                <div className="p-6">
-                  {/* Order Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-sm text-gray-500">Order #{order.id}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        {getStatusIcon(order.status)}
-                        <span className="text-sm font-medium capitalize">
-                          {order.status.toLowerCase()}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">Total Amount</p>
-                      <p className="text-lg font-semibold text-blue-600">
-                        रु{order.totalAmount.toLocaleString('en-IN')}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Preview of Items */}
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="flex -space-x-4">
-                      {order.items.slice(0, 3).map((item) => (
-                        <div key={item.productId} className="relative w-12 h-12 rounded-full border-2 border-white">
-                          <Image
-                            src={item.product?.imageUrl || '/product-placeholder.png'}
-                            alt={item.product?.name || 'Product'}
-                            fill
-                            className="object-contain rounded-full bg-gray-50 p-1"
-                          />
+                Start Shopping
+              </Link>
+            </div>
+          ) : (
+            <div className="grid gap-6 p-6">
+              {orders.map((order) => (
+                <Link 
+                  key={order.id} 
+                  href={`/customer/orders/${order.id}`}
+                  className="group block bg-white rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-lg transition-all duration-300 overflow-hidden"
+                >
+                  <div className="p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                      {/* Order Info */}
+                      <div className="flex-1 space-y-4">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
+                            Order #{order.id}
+                          </span>
+                          {getStatusBadge(order.status, 'delivery')}
+                          {getStatusBadge(order.paymentStatus, 'payment')}
                         </div>
-                      ))}
-                      {order.items.length > 3 && (
-                        <div className="relative w-12 h-12 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center">
-                          <span className="text-sm text-gray-600 font-medium">
-                            +{order.items.length - 3}
+
+                        {/* Items Preview */}
+                        <div className="flex items-center gap-4">
+                          <div className="flex -space-x-4 hover:-space-x-2 transition-all duration-300">
+                            {order.items.slice(0, 4).map((item) => (
+                              <div 
+                                key={item.productId} 
+                                className="relative w-12 h-12 rounded-xl ring-4 ring-white group-hover:ring-blue-50 transition-all duration-300"
+                              >
+                                <Image
+                                  src={item.product?.imageUrl || '/product-placeholder.png'}
+                                  alt={item.product?.name || 'Product'}
+                                  fill
+                                  className="object-cover rounded-xl bg-white p-2"
+                                />
+                              </div>
+                            ))}
+                            {order.items.length > 4 && (
+                              <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 ring-4 ring-white group-hover:ring-blue-50 flex items-center justify-center transition-all duration-300">
+                                <span className="text-sm font-semibold text-blue-600">
+                                  +{order.items.length - 4}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-sm text-gray-600">
+                            {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
                           </span>
                         </div>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
-                    </p>
-                  </div>
 
-                  {/* Footer Info */}
-                  <div className="flex justify-between items-center text-sm text-gray-500">
-                    <p>Shipping to: {order.shippingAddress}</p>
-                    <p>Shipping: रु{order.shippingCost.toLocaleString('en-IN')}</p>
+                        <div className="text-sm text-gray-600">
+                          📍 {order.shippingAddress}
+                        </div>
+                      </div>
+
+                      {/* Price Info */}
+                      <div className="lg:text-right lg:border-l lg:pl-6 pt-4 lg:pt-0 border-t lg:border-t-0 mt-4 lg:mt-0">
+                        <div className="text-2xl font-bold text-blue-600 group-hover:text-blue-700 transition-colors">
+                          रु{order.totalAmount.toLocaleString('en-IN')}
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          Includes रु{order.shippingCost.toLocaleString('en-IN')} shipping
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

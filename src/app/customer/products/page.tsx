@@ -8,6 +8,7 @@ import { Funnel_Sans } from "next/font/google";
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Pagination from '@/components/ui/pagination';
+import Link from 'next/link';
 
 const funnelSans = Funnel_Sans({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
@@ -506,7 +507,8 @@ export default function ProductsPage() {
 function ProductCard({ product }: { product: Product }) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-  const addToCart = async () => {
+  const addToCart = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation when clicking the add to cart button
     try {
       setIsAddingToCart(true);
       const userCookie = document.cookie
@@ -550,8 +552,10 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 overflow-hidden group">
-      {/* Image container with fixed aspect ratio */}
+    <Link 
+      href={`/customer/products/${product.id}`} 
+      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 overflow-hidden group"
+    >
       <div className="relative pt-[100%]">
         <Image
           src={product.imageUrl || '/product-placeholder.png'}
@@ -591,7 +595,7 @@ function ProductCard({ product }: { product: Product }) {
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

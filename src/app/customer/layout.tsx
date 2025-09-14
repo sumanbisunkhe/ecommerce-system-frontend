@@ -2,7 +2,6 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-// import CustomerSidebar from '@/components/dashboard/customer/sidebar-nav';
 import CustomerHeader from '@/components/dashboard/customer/header';
 
 interface CustomerLayoutProps {
@@ -56,7 +55,8 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-100">
       <CustomerHeader user={user} />
-      <main className="min-h-screen">
+      {/* Add padding-top to account for the fixed header */}
+      <main className="min-h-screen "> {/* 16 = h-16 of the header */}
         {children}
       </main>
     </div>
