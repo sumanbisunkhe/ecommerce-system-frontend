@@ -156,23 +156,22 @@ export default function ProductDetailsPage() {
                 .find(row => row.startsWith('token='))
                 ?.split('=')[1];
 
-            // Fixed URL construction to properly include quantity
-            const url = new URL(`http://localhost:8080/carts/${userId}/add/${product.id}`);
-            url.searchParams.append('quantity', quantity.toString());
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
+            const response = await fetch(
+                `http://localhost:8080/carts/${userId}/add/${product.id}?quantity=${quantity}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
                 }
-            });
+            );
 
             if (!response.ok) throw new Error('Failed to add to cart');
 
             const data = await response.json();
             if (data.success) {
-                notify.success(`Added ${quantity} item${quantity > 1 ? 's' : ''} to cart successfully`);
+                notify.success('Added to cart successfully');
                 router.push('/customer/carts');
             } else {
                 throw new Error(data.message);
