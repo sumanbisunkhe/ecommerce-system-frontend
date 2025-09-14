@@ -6,10 +6,20 @@ const protectedRoutes = ['/admin', '/merchant', '/customer', '/checkout']
 const authRoutes = ['/auth/login', '/auth/register']
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, searchParams } = request.nextUrl
   const token = request.cookies.get('token')?.value
   const user = request.cookies.get('user')?.value
-  
+
+  // Allow payment callback routes without standard auth checks
+  if (pathname.includes('/payment/khalti/callback')) {
+    return NextResponse.next()
+  }
+
+  // Allow payment callback parameters to pass through
+  if (searchParams.has('pidx') && pathname.startsWith('/customer/orders/')) {
+    return NextResponse.next()
+  }
+
   // Check if the current route is protected
   const isProtectedRoute = protectedRoutes.some(route => 
     pathname.startsWith(route)

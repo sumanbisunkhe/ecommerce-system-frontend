@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import {
     Package2, Loader2, ChevronLeft, Clock, CheckCircle2, XCircle, AlertCircle, Banknote
 } from 'lucide-react';
@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
+import KhaltiCallbackModal from '@/components/payment/KhaltiCallbackModal';
 
 const funnelSans = Funnel_Sans({
     subsets: ["latin"],
@@ -48,10 +49,12 @@ interface PaymentResponse {
 
 export default function OrderDetailsPage() {
     const { id } = useParams();
+    const searchParams = useSearchParams();
     const [order, setOrder] = useState<Order | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedPayment, setSelectedPayment] = useState<'KHALTI' | 'COD'>('KHALTI');
     const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
@@ -106,6 +109,13 @@ export default function OrderDetailsPage() {
         if (id) fetchOrderDetails();
     }, [id]);
 
+    useEffect(() => {
+        // Show payment callback modal if there are payment parameters
+        if (searchParams.get('pidx')) {
+            setShowPaymentModal(true);
+        }
+    }, [searchParams]);
+
     const getStatusIcon = (status: string) => {
         switch (status) {
             case 'COMPLETED': return <CheckCircle2 className="h-5 w-5 text-green-500" />;
@@ -159,6 +169,14 @@ export default function OrderDetailsPage() {
         setIsInitiatingPayment(false);
     }
 };
+
+    const handlePaymentComplete = (success: boolean) => {
+        setShowPaymentModal(false);
+        // Refresh order details if payment was successful
+        if (success) {
+            // Add your order refresh logic here
+        }
+    };
 
     if (isLoading) {
         return (
@@ -345,6 +363,14 @@ export default function OrderDetailsPage() {
                     )}
                 </button>
             </div>
+
+            {showPaymentModal && (
+                <KhaltiCallbackModal
+                    searchParams={searchParams}
+                    onClose={() => setShowPaymentModal(false)}
+                    onSuccess={handlePaymentComplete}
+                />
+            )}
         </div>
     );
 }

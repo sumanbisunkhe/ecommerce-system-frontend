@@ -17,6 +17,7 @@ export default function PaymentCallback() {
     const router = useRouter();
     const [isProcessing, setIsProcessing] = useState(true);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [paymentData, setPaymentData] = useState<any>(null);
 
     useEffect(() => {
         const verifyPayment = async () => {
@@ -33,54 +34,41 @@ export default function PaymentCallback() {
                     return;
                 }
 
-                const pidx = searchParams.get('pidx');
-                if (!pidx) {
-                    throw new Error('Invalid payment ID');
-                }
-
-                // Collect all callback parameters
-                const callbackParams = {
-                    pidx: pidx,
-                    transaction_id: searchParams.get('transaction_id') || '',
-                    tidx: searchParams.get('tidx') || '',
-                    txnId: searchParams.get('txnId') || '',
-                    amount: searchParams.get('amount') || '',
-                    total_amount: searchParams.get('total_amount') || '',
-                    mobile: searchParams.get('mobile') || '',
-                    status: searchParams.get('status') || '',
-                    purchase_order_id: searchParams.get('purchase_order_id') || '',
-                    purchase_order_name: searchParams.get('purchase_order_name') || ''
-                };
-
-                const callbackResponse = await fetch('http://localhost:8080/payment/khalti/callback', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Authorization': `Bearer ${decodeURIComponent(token)}`,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(callbackParams)
+                // Build URL with all parameters from searchParams
+                const params = new URLSearchParams();
+                searchParams.forEach((value, key) => {
+                    params.append(key, value);
                 });
 
-                if (!callbackResponse.ok) {
-                    const errorData = await callbackResponse.json();
-                    throw new Error(errorData.message || 'Payment callback failed');
+                const response = await fetch(`http://localhost:8080/payment/khalti/callback?${params.toString()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${decodeURIComponent(token)}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Payment verification failed');
                 }
 
-                const callbackData = await callbackResponse.json();
-                if (callbackData.success) {
+                const data = await response.json();
+                setPaymentData(data);
+
+                if (data.success) {
                     setIsSuccess(true);
                     notify.success('Payment successful!');
+                    // Delay redirect to show success message
+                    const orderId = searchParams.get('purchase_order_id');
                     setTimeout(() => {
-                        router.push(`/customer/orders/${callbackParams.purchase_order_id}`);
-                    }, 2000);
+                        router.replace(`/customer/orders/${orderId}`);
+                    }, 3000);
                 } else {
-                    throw new Error(callbackData.message);
+                    throw new Error(data.message || 'Payment verification failed');
                 }
             } catch (error: any) {
+                setIsSuccess(false);
                 notify.error(error.message);
-                setTimeout(() => router.push('/customer/orders'), 2000);
+                setTimeout(() => router.push('/customer/orders'), 3000);
             } finally {
                 setIsProcessing(false);
             }
@@ -90,39 +78,36 @@ export default function PaymentCallback() {
     }, [searchParams, router]);
 
     return (
-        <div className={`${funnelSans.className} min-h-screen flex items-center justify-center bg-gray-50`}>
+        <div className={`${funnelSans.className} min-h-screen flex items-center justify-center bg-gray-50 p-4`}>
             <NotificationProvider />
-            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full mx-4">
+            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full">
                 <div className="text-center">
                     {isProcessing ? (
                         <>
                             <Loader2 className="h-12 w-12 text-blue-600 animate-spin mx-auto" />
-                            <h2 className="mt-4 text-xl font-semibold text-gray-900">
-                                Verifying Payment
-                            </h2>
-                            <p className="mt-2 text-gray-600">
-                                Please wait while we verify your payment...
-                            </p>
+                            <h2 className="mt-4 text-xl font-semibold text-gray-900">Processing Payment</h2>
+                            <p className="mt-2 text-gray-600">Please wait while we verify your payment...</p>
                         </>
                     ) : isSuccess ? (
                         <>
                             <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto" />
-                            <h2 className="mt-4 text-xl font-semibold text-gray-900">
-                                Payment Successful
-                            </h2>
-                            <p className="mt-2 text-gray-600">
-                                Your payment has been verified. Redirecting...
-                            </p>
+                            <h2 className="mt-4 text-xl font-semibold text-gray-900">Payment Successful!</h2>
+                            {paymentData && (
+                                <div className="mt-4 space-y-2 text-left bg-gray-50 p-4 rounded-lg">
+                                    <p className="text-sm text-gray-600">Amount: NPR {searchParams.get('amount')}</p>
+                                    <p className="text-sm text-gray-600">Transaction ID: {paymentData.data.txnId}</p>
+                                    <p className="text-sm text-gray-600">Status: {paymentData.data.status}</p>
+                                    <p className="text-sm text-gray-600">Order: {searchParams.get('purchase_order_name')}</p>
+                                </div>
+                            )}
+                            <p className="mt-4 text-gray-600">Redirecting to your order details...</p>
                         </>
                     ) : (
                         <>
                             <XCircle className="h-12 w-12 text-red-500 mx-auto" />
-                            <h2 className="mt-4 text-xl font-semibold text-gray-900">
-                                Payment Verification Failed
-                            </h2>
-                            <p className="mt-2 text-gray-600">
-                                There was an issue verifying your payment. Redirecting...
-                            </p>
+                            <h2 className="mt-4 text-xl font-semibold text-gray-900">Payment Failed</h2>
+                            <p className="mt-2 text-gray-600">There was an issue processing your payment.</p>
+                            <p className="mt-4 text-gray-600">Redirecting to orders...</p>
                         </>
                     )}
                 </div>
