@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { ShoppingCart, Package2, LayoutGrid, TableColumnsSplit, Sparkles, ChartNoAxesCombined, CreditCard, LogOut, Settings, ChevronDown, Eye, Search, X } from 'lucide-react';
+import { ShoppingCart, Package2, LayoutGrid, ChartColumnStacked, Star, ChartLine, CreditCard, LogOut, Settings, ChevronDown, Eye, Search, X } from 'lucide-react';
 import { Funnel_Sans, Fascinate } from "next/font/google";
 import debounce from 'lodash/debounce';
 
@@ -15,11 +15,11 @@ const fascinate = Fascinate({
 
 const navigation = [
   { name: 'Products', href: '/customer/products', icon: LayoutGrid },
-  { name: 'Categories', href: '/customer/categories', icon: TableColumnsSplit },
+  { name: 'Categories', href: '/customer/categories', icon: ChartColumnStacked },
   { name: 'Orders', href: '/customer/orders', icon: Package2 },
-  { name: 'Trends', href: '/customer/recommendations', icon: Sparkles },
-  { name: 'Payments', href: '/customer/payments', icon: CreditCard },
-  { name: 'Analytics', href: '/customer/analytics', icon: ChartNoAxesCombined },
+  { name: 'Trends', href: '/customer/trends', icon: Star },
+  { name: 'Payments', href: '/customer/payment', icon: CreditCard },
+  { name: 'Analytics', href: '/customer/analytics', icon: ChartLine },
 ];
 
 interface CustomerHeaderProps {
@@ -121,12 +121,12 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
     <header className={`${funnelSans.className} fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-900 to-indigo-900 shadow-lg z-50 border-b border-blue-700`}>
       <div className="h-16 px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link 
-          href="/customer/products" 
+        <Link
+          href="/customer/products"
           className={`${fascinate.className} text-2xl font-bold text-white flex items-center transition-transform hover:scale-105`}
         >
-         <span
-  className={`${fascinate.className} 
+          <span
+            className={`${fascinate.className} 
               text-black 
               text-xl 
               bg-white 
@@ -142,8 +142,8 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
               hover:scale-103 
               transition-transform 
               duration-300`}>
-  HoT🔥sHoP
-</span>
+            HoT🔥sHoP
+          </span>
 
         </Link>
 
@@ -196,17 +196,14 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
             ))}
           </div>
 
-        
+
 
           {/* Cart Icon */}
           <Link
             href="/customer/carts"
             className="relative p-2 text-blue-100 hover:text-white hover:bg-white/5 rounded-full transition-colors"
           >
-            <ShoppingCart className="h-5 w-5" />
-            <span className="absolute top-1 right-1.5 w-4 h-4 bg-amber-400 text-xs font-bold text-blue-900 rounded-full flex items-center justify-center">
-              3
-            </span>
+            <ShoppingCart className="h-6 w-6" />
           </Link>
 
           {/* Profile Dropdown */}
@@ -250,7 +247,7 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
               className={`absolute right-0 mt-2 w-56 rounded-xl bg-white py-2 shadow-xl ring-1 ring-black ring-opacity-5 transform transition-all duration-200 origin-top ${isProfileOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'
                 }`}
             >
-                         
+
               <Link
                 href="/customer/profile"
                 className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
@@ -265,7 +262,7 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
                 onClick={() => setIsProfileOpen(false)}
               >
                 <Settings className="h-4 w-4" />
-                Account Settings
+                Settings
               </Link>
               <button
                 onClick={handleLogout}

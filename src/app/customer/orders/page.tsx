@@ -42,6 +42,31 @@ interface PageInfo {
   totalPages: number;
 }
 
+// Add new interfaces for sidebar products
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  imageUrl?: string;
+  stockQuantity?: number;
+  // ...other product fields if needed...
+}
+
+interface RecommendedProduct extends Product {
+  recommendationType: 'COLLABORATIVE' | 'CONTENT_BASED';
+  recommendationScore: number;
+}
+
+interface SystemAnalytics {
+  success: boolean;
+  message: string;
+  data: {
+    popularProducts: Product[];
+    newProducts: Product[];
+    // ... other fields not needed for this feature
+  };
+}
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,6 +77,11 @@ export default function OrdersPage() {
     totalElements: 0,
     totalPages: 0,
   });
+
+  // New sidebar states
+  const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>([]);
+  const [popularProducts, setPopularProducts] = useState<Product[]>([]);
+  const [newProducts, setNewProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -132,7 +162,74 @@ export default function OrdersPage() {
       }
     };
 
+    // New: fetch recommendations, popular and new products
+    const fetchSidebarData = async () => {
+      try {
+        const token = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('token='))
+          ?.split('=')[1];
+
+        // Fetch system analytics for popular and new products
+        const analyticsResp = await fetch(`http://localhost:8080/analytics/system`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (analyticsResp.ok) {
+          const analytics: SystemAnalytics = await analyticsResp.json();
+          if (analytics.success) {
+            setPopularProducts(analytics.data.popularProducts || []);
+            setNewProducts(analytics.data.newProducts || []);
+          }
+        }
+
+        // Fetch personalized recommendations if user exists
+        const userCookie = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('user='))
+          ?.split('=')[1];
+
+        if (!userCookie) return;
+        const userData = JSON.parse(decodeURIComponent(userCookie));
+        const userId = userData.id;
+
+        try {
+          const recResp = await fetch(`http://localhost:8080/recommendations/user/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!recResp.ok) throw new Error('Failed to fetch recommendations');
+          const recData = await recResp.json();
+          if (recData.success) {
+            const prodDetails = await Promise.all(
+              recData.data.map(async (rec: any) => {
+                try {
+                  const pResp = await fetch(`http://localhost:8080/products/${rec.productId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                  });
+                  const pData = await pResp.json();
+                  return {
+                    ...pData.data,
+                    recommendationType: rec.type,
+                    recommendationScore: rec.score,
+                  } as RecommendedProduct;
+                } catch (e) {
+                  console.error('Failed to fetch recommended product details', e);
+                  return null;
+                }
+              })
+            );
+            setRecommendedProducts(prodDetails.filter(Boolean) as RecommendedProduct[]);
+          }
+        } catch (err) {
+          console.error('Failed to fetch recommendations', err);
+        }
+      } catch (error) {
+        console.error('Sidebar fetch error', error);
+      }
+    };
+
     fetchOrders();
+    fetchSidebarData();
   }, []);
 
   const handleDeleteOrder = async (orderId: number) => {
@@ -240,138 +337,210 @@ export default function OrdersPage() {
       )}
 
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          {/* Header with updated styling */}
-          <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/80">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100/50 rounded-lg">
-                  <Package2 className="h-6 w-6 text-blue-600" />
+        {/* Changed layout: main content + right sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+              {/* Header with updated styling */}
+              <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100/50 rounded-lg">
+                      <Package2 className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <h1 className="text-xl font-semibold text-gray-900">Order History</h1>
+                  </div>
+                  <span className="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
+                    {pageInfo.totalElements} {pageInfo.totalElements === 1 ? 'order' : 'orders'} total
+                  </span>
                 </div>
-                <h1 className="text-xl font-semibold text-gray-900">Order History</h1>
               </div>
-              <span className="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
-                {pageInfo.totalElements} {pageInfo.totalElements === 1 ? 'order' : 'orders'} total
-              </span>
+
+              {orders.length === 0 ? (
+                <div className="p-12 text-center">
+                  <Package2 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+                  <p className="text-gray-500 mb-6">When you place orders, they'll appear here.</p>
+                  <Link 
+                    href="/customer/products"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    Start Shopping
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-6 p-6">
+                  {sortedGroups.map(([status, statusOrders]) => (
+                    <div key={status} className="space-y-4">
+                      <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 px-4">
+                        <span className="h-2 w-2 rounded-full bg-blue-600"></span>
+                        {status.charAt(0) + status.slice(1).toLowerCase()} Orders
+                        <span className="text-sm font-normal text-gray-500">({statusOrders.length})</span>
+                      </h2>
+                      <div className="grid gap-4">
+                        {statusOrders.map((order) => (
+                          <div 
+                            key={order.id}
+                            className="group relative bg-white rounded-xl border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all duration-300"
+                          >
+                            <div className="p-5">
+                              <div className="flex items-start justify-between gap-4">
+                                <Link 
+                                  href={`/customer/orders/${order.id}`}
+                                  className="flex-1"
+                                >
+                                  <div className="space-y-4">
+                                    {/* Order Header */}
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-sm font-medium">
+                                        #{order.id}
+                                      </span>
+                                      {getStatusBadge(order.status, 'delivery')}
+                                      {getStatusBadge(order.paymentStatus, 'payment')}
+                                    </div>
+
+                                    {/* Order Content */}
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-3">
+                                      {/* Items Preview */}
+                                      <div className="flex items-center gap-3">
+                                        <div className="flex -space-x-3 hover:-space-x-1 transition-all duration-300">
+                                          {order.items.slice(0, 3).map((item) => (
+                                            <div 
+                                              key={item.productId} 
+                                              className="relative w-10 h-10 rounded-lg ring-2 ring-white bg-white"
+                                            >
+                                              <Image
+                                                src={item.product?.imageUrl || '/product-placeholder.png'}
+                                                alt={item.product?.name || 'Product'}
+                                                fill
+                                                className="object-cover rounded-lg p-1"
+                                              />
+                                            </div>
+                                          ))}
+                                          {order.items.length > 3 && (
+                                            <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 ring-2 ring-white flex items-center justify-center">
+                                              <span className="text-xs font-medium text-blue-600">
+                                                +{order.items.length - 3}
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <span className="text-sm text-gray-600">
+                                          {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                                        </span>
+                                      </div>
+
+                                      {/* Price and Address */}
+                                      <div className="flex items-center justify-between flex-1 gap-4">
+                                        <div className="text-sm text-gray-600">
+                                          <span className="inline-block px-2 py-1 bg-gray-50 rounded-md">
+                                            📍 {order.shippingAddress}
+                                          </span>
+                                        </div>
+                                        <div className="text-right">
+                                          <div className="text-lg font-bold text-blue-600">
+                                            रु{order.totalAmount.toLocaleString('en-IN')}
+                                          </div>
+                                          <p className="text-xs text-gray-500">
+                                            Incl. रु{order.shippingCost.toLocaleString('en-IN')} shipping
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Link>
+                                {order.paymentStatus !== 'COMPLETED' && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setDeleteOrderId(order.id);
+                                    }}
+                                    className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                                    title="Delete order"
+                                  >
+                                    <X className="h-5 w-5" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {orders.length === 0 ? (
-            <div className="p-12 text-center">
-              <Package2 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-              <p className="text-gray-500 mb-6">When you place orders, they'll appear here.</p>
-              <Link 
-                href="/customer/products"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-              >
-                Start Shopping
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-6 p-6">
-              {sortedGroups.map(([status, statusOrders]) => (
-                <div key={status} className="space-y-4">
-                  <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 px-4">
-                    <span className="h-2 w-2 rounded-full bg-blue-600"></span>
-                    {status.charAt(0) + status.slice(1).toLowerCase()} Orders
-                    <span className="text-sm font-normal text-gray-500">({statusOrders.length})</span>
-                  </h2>
-                  <div className="grid gap-4">
-                    {statusOrders.map((order) => (
-                      <div 
-                        key={order.id}
-                        className="group relative bg-white rounded-xl border border-gray-200 hover:border-blue-200 hover:shadow-md transition-all duration-300"
-                      >
-                        <div className="p-5">
-                          <div className="flex items-start justify-between gap-4">
-                            <Link 
-                              href={`/customer/orders/${order.id}`}
-                              className="flex-1"
-                            >
-                              <div className="space-y-4">
-                                {/* Order Header */}
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-sm font-medium">
-                                    #{order.id}
-                                  </span>
-                                  {getStatusBadge(order.status, 'delivery')}
-                                  {getStatusBadge(order.paymentStatus, 'payment')}
-                                </div>
-
-                                {/* Order Content */}
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-3">
-                                  {/* Items Preview */}
-                                  <div className="flex items-center gap-3">
-                                    <div className="flex -space-x-3 hover:-space-x-1 transition-all duration-300">
-                                      {order.items.slice(0, 3).map((item) => (
-                                        <div 
-                                          key={item.productId} 
-                                          className="relative w-10 h-10 rounded-lg ring-2 ring-white bg-white"
-                                        >
-                                          <Image
-                                            src={item.product?.imageUrl || '/product-placeholder.png'}
-                                            alt={item.product?.name || 'Product'}
-                                            fill
-                                            className="object-cover rounded-lg p-1"
-                                          />
-                                        </div>
-                                      ))}
-                                      {order.items.length > 3 && (
-                                        <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 ring-2 ring-white flex items-center justify-center">
-                                          <span className="text-xs font-medium text-blue-600">
-                                            +{order.items.length - 3}
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <span className="text-sm text-gray-600">
-                                      {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
-                                    </span>
-                                  </div>
-
-                                  {/* Price and Address */}
-                                  <div className="flex items-center justify-between flex-1 gap-4">
-                                    <div className="text-sm text-gray-600">
-                                      <span className="inline-block px-2 py-1 bg-gray-50 rounded-md">
-                                        📍 {order.shippingAddress}
-                                      </span>
-                                    </div>
-                                    <div className="text-right">
-                                      <div className="text-lg font-bold text-blue-600">
-                                        रु{order.totalAmount.toLocaleString('en-IN')}
-                                      </div>
-                                      <p className="text-xs text-gray-500">
-                                        Incl. रु{order.shippingCost.toLocaleString('en-IN')} shipping
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </Link>
-                            {order.paymentStatus !== 'COMPLETED' && (
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  setDeleteOrderId(order.id);
-                                }}
-                                className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                                title="Delete order"
-                              >
-                                <X className="h-5 w-5" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
+          {/* Right Sidebar: Recommendations, Popular, New */}
+          <aside className="lg:col-span-1 space-y-6">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+              <h3 className="text-lg font-semibold mb-4">Recommended for you</h3>
+              <div className="divide-y divide-gray-100">
+                {recommendedProducts.slice(0, 5).map((p) => (
+                  <Link key={p.id} href={`/customer/products/${p.id}`} className="block hover:bg-gray-50 transition-colors">
+                    <div className="flex gap-3 py-3 px-2">
+                      <div className="relative w-14 h-14 rounded-md border border-gray-200 overflow-hidden flex-shrink-0">
+                        <Image src={p.imageUrl || '/product-placeholder.png'} alt={p.name} fill className="object-cover" />
                       </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-gray-900 truncate">{p.name}</h4>
+                        <p className="text-sm font-medium text-blue-600">रु {p.price?.toLocaleString('en-IN')}</p>
+                        <p className="text-xs text-gray-500">
+                          {p.recommendationType === 'COLLABORATIVE' ? 'Based on similar users' : 'Similar product'}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                {recommendedProducts.length === 0 && <p className="text-sm text-gray-500 p-2">No recommendations yet.</p>}
+              </div>
             </div>
-          )}
+
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+              <h3 className="text-lg font-semibold mb-4">Popular products</h3>
+              <div className="divide-y divide-gray-100">
+                {popularProducts.slice(0, 5).map((p) => (
+                  <Link key={p.id} href={`/customer/products/${p.id}`} className="block hover:bg-gray-50 transition-colors">
+                    <div className="flex gap-3 py-3 px-2">
+                      <div className="relative w-14 h-14 rounded-md border border-gray-200 overflow-hidden flex-shrink-0">
+                        <Image src={p.imageUrl || '/product-placeholder.png'} alt={p.name} fill className="object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-gray-900 truncate">{p.name}</h4>
+                        <p className="text-sm font-medium text-blue-600">रु {p.price?.toLocaleString('en-IN')}</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                {popularProducts.length === 0 && <p className="text-sm text-gray-500 p-2">No popular products found.</p>}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+              <h3 className="text-lg font-semibold mb-4">New arrivals</h3>
+              <div className="divide-y divide-gray-100">
+                {newProducts.slice(0, 5).map((p) => (
+                  <Link key={p.id} href={`/customer/products/${p.id}`} className="block hover:bg-gray-50 transition-colors">
+                    <div className="flex gap-3 py-3 px-2">
+                      <div className="relative w-14 h-14 rounded-md border border-gray-200 overflow-hidden flex-shrink-0">
+                        <Image src={p.imageUrl || '/product-placeholder.png'} alt={p.name} fill className="object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-gray-900 truncate">{p.name}</h4>
+                        <p className="text-sm font-medium text-blue-600">रु {p.price?.toLocaleString('en-IN')}</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                {newProducts.length === 0 && <p className="text-sm text-gray-500 p-2">No new products found.</p>}
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </div>
   );
 }
+  

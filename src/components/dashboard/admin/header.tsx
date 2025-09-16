@@ -18,9 +18,10 @@ const funnelSans = Funnel_Sans({
 interface AdminHeaderProps {
   user: any;
   isSidebarCollapsed?: boolean;
+  sidebarWidth?: number;
 }
 
-export default function AdminHeader({ user: initialUser, isSidebarCollapsed = false }: AdminHeaderProps) {
+export default function AdminHeader({ user: initialUser, isSidebarCollapsed = false, sidebarWidth = 256 }: AdminHeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showSettingsSubmenu, setShowSettingsSubmenu] = useState(false);
   const [user, setUser] = useState(initialUser);
@@ -80,7 +81,7 @@ export default function AdminHeader({ user: initialUser, isSidebarCollapsed = fa
         position: 'fixed',
         top: 0,
         right: 0,
-        left: isSidebarCollapsed ? '64px' : '256px',
+        left: `${sidebarWidth}px`,
         transition: 'left 0.3s ease-in-out'
       }}
       className="bg-white shadow-sm z-40">
