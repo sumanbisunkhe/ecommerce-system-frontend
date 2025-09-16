@@ -65,9 +65,18 @@ interface CartResponse {
   totalPrice: number;
 }
 
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function ProductsPage() {
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get('search') || '';
+  const categoryParam = searchParams.get('category');
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pageInfo, setPageInfo] = useState<PageInfo>({
@@ -83,6 +92,14 @@ export default function ProductsPage() {
   const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>([]);
   const [popularProducts, setPopularProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  // Initialize filters with category from URL
+  useEffect(() => {
+    if (categoryParam) {
+      setFilters(prev => ({ ...prev, categoryId: Number(categoryParam) }));
+    }
+  }, [categoryParam]);
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -281,6 +298,37 @@ export default function ProductsPage() {
     setPageInfo(prev => ({ ...prev, number: validPage }));
   };
 
+  // Add fetchCategories function
+  const fetchCategories = async () => {
+    try {
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+      const response = await fetch('http://localhost:8080/categories/all', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch categories');
+
+      const data = await response.json();
+      if (data.success) {
+        setCategories(data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+    }
+  };
+
+  // Add useEffect for fetching categories
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   return (
     <div className={`${funnelSans.className} container mx-auto px-4 py-8 pt-24`}>
       <NotificationProvider />
@@ -385,16 +433,23 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              {/* Category ID */}
+              {/* Category Dropdown */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category ID</label>
-                <input
-                  type="number"
-                  placeholder="Category ID"
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select
                   value={filters.categoryId || ''}
-                  onChange={(e) => handleFilterChange({ categoryId: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                />
+                  onChange={(e) => handleFilterChange({ 
+                    categoryId: e.target.value ? Number(e.target.value) : undefined 
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Clear Filters Button */}

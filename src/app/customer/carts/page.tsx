@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Funnel_Sans } from "next/font/google";
-import { ShoppingCart, Loader2, Package2, X } from 'lucide-react';
+import { ShoppingCart, Loader2, Package2, X, Trash2 } from 'lucide-react';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Image from 'next/image';
@@ -59,6 +59,8 @@ export default function CartPage() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [shippingAddress, setShippingAddress] = useState('');
   const [orderDetails, setOrderDetails] = useState<OrderResponse | null>(null);
+  const [isDeletingItem, setIsDeletingItem] = useState<number | null>(null);
+  const [isClearingCart, setIsClearingCart] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -227,6 +229,96 @@ export default function CartPage() {
     }
   };
 
+  const removeFromCart = async (productId: number) => {
+    try {
+      setIsDeletingItem(productId);
+      const userCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('user='))
+        ?.split('=')[1];
+
+      if (!userCookie) throw new Error('User not found');
+
+      const userData = JSON.parse(decodeURIComponent(userCookie));
+      const userId = userData.id;
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+      const response = await fetch(
+        `http://localhost:8080/carts/${userId}/remove/${productId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to remove item');
+
+      const data = await response.json();
+      if (data.success) {
+        notify.success('Item removed from cart');
+        // Update cart state by removing the item
+        setCart(prev => prev ? {
+          ...prev,
+          items: prev.items.filter(item => item.productId !== productId),
+          totalItems: prev.totalItems - 1,
+          totalPrice: prev.totalPrice - (prev.items.find(item => item.productId === productId)?.totalPrice || 0)
+        } : null);
+      }
+    } catch (error: any) {
+      notify.error(error.message);
+    } finally {
+      setIsDeletingItem(null);
+    }
+  };
+
+  const clearCart = async () => {
+    try {
+      setIsClearingCart(true);
+      const userCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('user='))
+        ?.split('=')[1];
+
+      if (!userCookie) throw new Error('User not found');
+
+      const userData = JSON.parse(decodeURIComponent(userCookie));
+      const userId = userData.id;
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+      const response = await fetch(
+        `http://localhost:8080/carts/${userId}/clear`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to clear cart');
+
+      const data = await response.json();
+      if (data.success) {
+        notify.success('Cart cleared successfully');
+        setCart(null);
+      }
+    } catch (error: any) {
+      notify.error(error.message);
+    } finally {
+      setIsClearingCart(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -251,9 +343,25 @@ export default function CartPage() {
       
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5 text-blue-600" />
-            <h1 className="text-xl font-semibold text-gray-900">Your Cart</h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-blue-600" />
+              <h1 className="text-xl font-semibold text-gray-900">Your Cart</h1>
+            </div>
+            {cart && cart.items.length > 0 && (
+              <button
+                onClick={clearCart}
+                disabled={isClearingCart}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                {isClearingCart ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+                Clear Cart
+              </button>
+            )}
           </div>
         </div>
 
@@ -282,11 +390,22 @@ export default function CartPage() {
                 </div>
               </div>
 
-              {/* Total Price */}
-              <div className="flex-shrink-0">
+              {/* Total Price and Remove Button */}
+              <div className="flex-shrink-0 flex items-center gap-4">
                 <p className="font-semibold text-blue-600">
                   रु{item.totalPrice.toLocaleString('en-IN')}
                 </p>
+                <button
+                  onClick={() => removeFromCart(item.productId)}
+                  disabled={isDeletingItem === item.productId}
+                  className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                >
+                  {isDeletingItem === item.productId ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <X className="h-5 w-5" />
+                  )}
+                </button>
               </div>
             </div>
           ))}
