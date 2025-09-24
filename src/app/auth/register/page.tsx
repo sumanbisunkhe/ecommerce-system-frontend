@@ -74,11 +74,9 @@ export default function RegisterPage() {
       <div className={`w-full max-w-4xl bg-white rounded-xl shadow-lg p-8 ${funnelSans.className}`}>
         {/* Logo */}
         <div className="text-center mb-6">
-          <span
-            className={`${fascinate.className} text-black text-3xl font-bold tracking-widest transition-all duration-200`}
-          >
+          <Link href="/" className={`${fascinate.className} text-black text-3xl font-bold tracking-widest transition-all duration-200`}>
             HoT🔥sHoP
-          </span>
+          </Link>
         </div>
 
         {/* Header */}

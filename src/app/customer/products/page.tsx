@@ -656,48 +656,52 @@ function ProductCard({ product }: { product: Product }) {
 
 function CompactProductCard({ product }: { product: Product }) {
   return (
-    <div className="flex gap-3 items-center p-4 hover:bg-gray-50 transition-colors cursor-pointer">
-      <div className="w-16 h-16 relative flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
-        <Image
-          src={product.imageUrl || '/product-placeholder.png'}
-          alt={product.name}
-          fill
-          className="object-contain p-2 bg-gray-50"
-        />
+    <Link href={`/customer/products/${product.id}`}>
+      <div className="flex gap-3 items-center p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+        <div className="w-16 h-16 relative flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
+          <Image
+            src={product.imageUrl || '/product-placeholder.png'}
+            alt={product.name}
+            fill
+            className="object-contain p-2 bg-gray-50"
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-medium text-gray-900 truncate hover:text-blue-600 transition-colors">
+            {product.name}
+          </h3>
+          <p className="text-sm font-semibold text-blue-600">रु{product.price.toLocaleString('en-IN')}</p>
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-medium text-gray-900 truncate hover:text-blue-600 transition-colors">
-          {product.name}
-        </h3>
-        <p className="text-sm font-semibold text-blue-600">रु{product.price.toLocaleString('en-IN')}</p>
-      </div>
-    </div>
+    </Link>
   );
 }
 
 function RecommendationCard({ product }: { product: RecommendedProduct }) {
   return (
-    <div className="flex gap-3 items-center p-4 hover:bg-gray-50 transition-colors cursor-pointer">
-      <div className="w-16 h-16 relative flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
-        <Image
-          src={product.imageUrl || '/product-placeholder.png'}
-          alt={product.name}
-          fill
-          className="object-contain p-2 bg-gray-50"
-        />
+    <Link href={`/customer/products/${product.id}`}>
+      <div className="flex gap-3 items-center p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+        <div className="w-16 h-16 relative flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
+          <Image
+            src={product.imageUrl || '/product-placeholder.png'}
+            alt={product.name}
+            fill
+            className="object-contain p-2 bg-gray-50"
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-medium text-gray-900 truncate hover:text-blue-600 transition-colors">
+            {product.name}
+          </h3>
+          <p className="text-sm font-semibold text-blue-600">
+            रु{product.price.toLocaleString('en-IN')}
+          </p>
+          <p className="text-xs text-gray-500">
+            {product.recommendationType.toLowerCase().replace('_', ' ')} • 
+            Score: {(product.recommendationScore * 100).toFixed(0)}%
+          </p>
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-medium text-gray-900 truncate hover:text-blue-600 transition-colors">
-          {product.name}
-        </h3>
-        <p className="text-sm font-semibold text-blue-600">
-          रु{product.price.toLocaleString('en-IN')}
-        </p>
-        <p className="text-xs text-gray-500">
-          {product.recommendationType.toLowerCase().replace('_', ' ')} • 
-          Score: {(product.recommendationScore * 100).toFixed(0)}%
-        </p>
-      </div>
-    </div>
+    </Link>
   );
 }

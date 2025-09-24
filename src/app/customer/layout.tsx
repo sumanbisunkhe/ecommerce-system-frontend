@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CustomerHeader from '@/components/dashboard/customer/header';
+import Footer from '@/components/ui/Footer';
 
 interface CustomerLayoutProps {
   children: ReactNode;
@@ -59,6 +60,7 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
       <main className="min-h-screen "> {/* 16 = h-16 of the header */}
         {children}
       </main>
+      <Footer />
     </div>
   );
 }

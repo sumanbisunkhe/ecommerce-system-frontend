@@ -8,6 +8,7 @@ import NotificationProvider from '@/components/ui/Notification';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import CheckoutModal from '@/components/checkout/CheckoutModal';
+import Footer from '@/components/ui/Footer';
 
 const funnelSans = Funnel_Sans({
   subsets: ["latin"],
@@ -113,9 +114,9 @@ export default function CartPage() {
                       }
                     }
                   );
-                  
+
                   if (!productResponse.ok) throw new Error('Failed to fetch product');
-                  
+
                   const productData = await productResponse.json();
                   return {
                     ...item,
@@ -128,7 +129,7 @@ export default function CartPage() {
               })
             )
           };
-          
+
           setCart(cartWithProducts);
         } else {
           throw new Error(data.message);
@@ -340,7 +341,7 @@ export default function CartPage() {
   return (
     <div className={`${funnelSans.className} container mx-auto px-4 py-8 pt-24`}>
       <NotificationProvider />
-      
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">

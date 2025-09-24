@@ -7,6 +7,7 @@ import { Fascinate } from 'next/font/google';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
+import Footer from '@/components/ui/Footer';
 
 
 
@@ -44,7 +45,7 @@ export default function LoginPage() {
         const data = await response.json();
         document.cookie = `token=${data.data.token}; path=/`;
         document.cookie = `user=${encodeURIComponent(JSON.stringify(data.data.user))}; path=/`;
-        
+
         if (data.success) {
           if (data.data.user.roles.includes('ADMIN')) {
             router.push('/admin/analytics');
@@ -80,11 +81,9 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
         {/* Logo */}
         <div className="text-center mb-6">
-          <span
-            className={`${fascinate.className} text-black text-3xl font-bold tracking-widest transition-all duration-200`}
-          >
+          <Link href="/" className={`${fascinate.className} text-black text-3xl font-bold tracking-widest transition-all duration-200`}>
             HoT🔥sHoP
-          </span>
+          </Link>
         </div>
 
         {/* Header */}
@@ -198,6 +197,8 @@ function FloatingInput({
           {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
         </button>
       )}
+
+      
     </div>
   );
 }

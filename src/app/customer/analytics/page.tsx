@@ -22,6 +22,7 @@ import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 import { FiTrendingUp, FiBarChart2, FiClock, FiDollarSign, FiShoppingBag, FiCreditCard } from 'react-icons/fi';
 import { RiVipCrownFill } from 'react-icons/ri';
+import Footer from '@/components/ui/Footer';
 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
 const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
@@ -187,8 +188,8 @@ const StatCard = ({ icon: Icon, label, value, subValue, className = '' }: {
 );
 
 // Enhanced Card Component
-const Card = ({ children, className = '', title }: { 
-  children: React.ReactNode; 
+const Card = ({ children, className = '', title }: {
+  children: React.ReactNode;
   className?: string;
   title?: string;
 }) => (
@@ -284,8 +285,8 @@ export default function Analytics() {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-24 pb-12 ${funnelSans.className}`}>
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-24 ${funnelSans.className}`}>
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
         {/* Enhanced Header with User Status */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -307,16 +308,15 @@ export default function Analytics() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <RiVipCrownFill className={`h-6 w-6 ${
-                analytics.loyaltyTier === 'Gold' ? 'text-yellow-500' :
-                analytics.loyaltyTier === 'Silver' ? 'text-gray-400' :
-                'text-amber-700'
-              }`} />
+              <RiVipCrownFill className={`h-6 w-6 ${analytics.loyaltyTier === 'Gold' ? 'text-yellow-500' :
+                  analytics.loyaltyTier === 'Silver' ? 'text-gray-400' :
+                    'text-amber-700'
+                }`} />
               <div className="text-right">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium
                   ${analytics.loyaltyTier === 'Gold' ? 'bg-yellow-100 text-yellow-800' :
                     analytics.loyaltyTier === 'Silver' ? 'bg-gray-100 text-gray-800' :
-                    'bg-amber-100 text-amber-800'}`}>
+                      'bg-amber-100 text-amber-800'}`}>
                   {analytics.loyaltyTier} Member
                 </span>
                 <p className="text-sm text-gray-500 mt-1">
@@ -431,7 +431,7 @@ export default function Analytics() {
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center
                     ${index === 0 ? 'bg-blue-600' :
                       index === 1 ? 'bg-purple-600' :
-                      'bg-green-600'} text-white font-bold`}>
+                        'bg-green-600'} text-white font-bold`}>
                     {index + 1}
                   </div>
                   <span className="text-gray-700 font-medium">{category}</span>
@@ -444,3 +444,4 @@ export default function Analytics() {
     </div>
   );
 }
+   

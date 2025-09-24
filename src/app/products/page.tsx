@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Package2, ArrowUpDown, Filter, Loader2, X } from 'lucide-react';
 import Image from 'next/image';
 import { Funnel_Sans } from "next/font/google";
@@ -9,6 +9,8 @@ import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Pagination from '@/components/ui/pagination';
 import Link from 'next/link';
+import Header from '@/app/header';
+import Footer from '@/components/ui/Footer';
 
 const funnelSans = Funnel_Sans({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
@@ -105,22 +107,22 @@ export default function ProductsPage() {
     setIsLoading(true);
     try {
       const queryParams = new URLSearchParams();
-      
+
       // Only add search param if it exists and is not empty
       // if (searchTerm?.trim()) {
       //   queryParams.append('search', searchTerm.trim());
       // }
       queryParams.append('search', searchTerm?.trim() || '');
-      
+
       // Use 1-based page number (backend expects this and converts to 0-based internally)
       const pageNumber = Math.max(1, pageInfo.number);
       queryParams.append('page', pageNumber.toString());
       queryParams.append('size', pageInfo.size.toString());
-      
+
       // Add sorting params
       queryParams.append('sortBy', sortBy);
       queryParams.append('ascending', (sortOrder === 'asc').toString());
-      
+
       // Always include active status
       queryParams.append('active', 'true');
 
@@ -144,8 +146,8 @@ export default function ProductsPage() {
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
       const response = await fetch(
         `http://localhost:8080/products/all?${queryParams}`,
-        { 
-          headers: { 
+        {
+          headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
           }
@@ -183,77 +185,15 @@ export default function ProductsPage() {
   };
 
   useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        const userCookie = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('user='))
-          ?.split('=')[1];
-
-        if (userCookie) {
-          const userData = JSON.parse(decodeURIComponent(userCookie));
-          const userId = userData.id;
-          const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-
-          // Fetch recommendations
-          const recResponse = await fetch(
-            `http://localhost:8080/recommendations/user/${userId}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-              }
-            }
-          );
-
-          if (!recResponse.ok) {
-            throw new Error('Failed to fetch recommendations');
-          }
-
-          const recData = await recResponse.json();
-          if (recData.success) {
-            // Fetch product details for each recommendation
-            const productPromises = recData.data.map(async (rec: Recommendation) => {
-              const prodResponse = await fetch(
-                `http://localhost:8080/products/${rec.productId}`,
-                {
-                  headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                  }
-                }
-              );
-              
-              if (!prodResponse.ok) {
-                throw new Error(`Failed to fetch product ${rec.productId}`);
-              }
-
-              const prodData = await prodResponse.json();
-              return {
-                ...prodData.data,
-                recommendationType: rec.type,
-                recommendationScore: rec.score
-              };
-            });
-
-            const products = await Promise.all(productPromises);
-            setRecommendedProducts(products);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch recommendations:", error);
-        setRecommendedProducts([]);
-      }
-    };
 
     const fetchAnalytics = async () => {
       try {
         const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
         const response = await fetch(
-          'http://localhost:8080/analytics/system',
+          'http://localhost:8080/analytics/products-analytics',
           {
             headers: {
-              'Authorization': `Bearer ${token}`,
+              // 'Authorization': `Bearer ${token}`,
               'Accept': 'application/json'
             }
           }
@@ -269,8 +209,6 @@ export default function ProductsPage() {
         setNewProducts([]);
       }
     };
-
-    fetchRecommendations();
     fetchAnalytics();
   }, []);
 
@@ -308,7 +246,7 @@ export default function ProductsPage() {
 
       const response = await fetch('http://localhost:8080/categories/all', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          // 'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
         }
       });
@@ -330,13 +268,14 @@ export default function ProductsPage() {
   }, []);
 
   return (
-    <div className={`${funnelSans.className} container mx-auto px-4 py-8 pt-24`}>
+    <div className={`${funnelSans.className} container mx-auto px-4`}>
+      <Header />
       <NotificationProvider />
-      
+
       {/* Search Results Header */}
       {searchTerm && (
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-gray-900 mt-12">
             Search results for: <span className="text-blue-600">"{searchTerm}"</span>
           </h2>
           <span className="text-sm text-gray-500">
@@ -346,18 +285,17 @@ export default function ProductsPage() {
       )}
 
       {/* Controls Bar */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6">
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 mt-28">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900">
             {searchTerm ? 'Search Results' : 'All Products'}
           </h1>
-          
+
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-2 border rounded-lg ${
-                Object.keys(filters).length > 0 ? 'border-blue-500 text-blue-600' : 'border-gray-300'
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 border rounded-lg ${Object.keys(filters).length > 0 ? 'border-blue-500 text-blue-600' : 'border-gray-300'
+                }`}
             >
               <Filter className="h-4 w-4" />
               Filters
@@ -377,7 +315,7 @@ export default function ProductsPage() {
               <option value="name">Name</option>
               <option value="updatedAt">Recently Updated</option>
             </select>
-            
+
             <button
               onClick={() => setSortOrder(current => current === 'asc' ? 'desc' : 'asc')}
               className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
@@ -438,8 +376,8 @@ export default function ProductsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <select
                   value={filters.categoryId || ''}
-                  onChange={(e) => handleFilterChange({ 
-                    categoryId: e.target.value ? Number(e.target.value) : undefined 
+                  onChange={(e) => handleFilterChange({
+                    categoryId: e.target.value ? Number(e.target.value) : undefined
                   })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
@@ -482,7 +420,7 @@ export default function ProductsPage() {
                 {searchTerm ? 'No products found' : 'No products available'}
               </h3>
               <p className="text-gray-500">
-                {searchTerm 
+                {searchTerm
                   ? `Try adjusting your search or filters to find what you're looking for.`
                   : 'Check back later for new products.'
                 }
@@ -498,7 +436,7 @@ export default function ProductsPage() {
 
           {/* Pagination */}
           {!isLoading && pageInfo.totalPages > 0 && (
-            <div className="mt-8 flex items-center justify-center">
+            <div className="mt-8 flex items-center justify-center mb-4">
               <Pagination
                 currentPage={pageInfo.number}
                 totalPages={pageInfo.totalPages}
@@ -510,17 +448,6 @@ export default function ProductsPage() {
 
         {/* Right Sidebar - 30% width */}
         <div className="lg:w-80 space-y-6">
-          {/* Recommended Products */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-4 border-b border-gray-100">
-              <h2 className="font-semibold text-gray-900">Recommended Products</h2>
-            </div>
-            <div className="divide-y divide-gray-100">
-              {recommendedProducts.map((product) => (
-                <RecommendationCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
 
           {/* Popular Products */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -555,24 +482,39 @@ export default function ProductsPage() {
           </div>
         </div>
       </div>
+
+      <div className="-mx-4">
+        <Footer />
+      </div>
+
+
     </div>
+
+
+
   );
 }
 
 function ProductCard({ product }: { product: Product }) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const router = useRouter();
 
   const addToCart = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation when clicking the add to cart button
+
+    // Check if user is logged in
+    const userCookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('user='))
+      ?.split('=')[1];
+
+    if (!userCookie) {
+      router.push('/auth/login');
+      return;
+    }
+
     try {
       setIsAddingToCart(true);
-      const userCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('user='))
-        ?.split('=')[1];
-
-      if (!userCookie) throw new Error('User not found');
-
       const userData = JSON.parse(decodeURIComponent(userCookie));
       const userId = userData.id;
       const token = document.cookie
@@ -607,8 +549,8 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Link 
-      href={`/customer/products/${product.id}`} 
+    <Link
+      href={`/products/${product.id}`}
       className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 overflow-hidden group"
     >
       <div className="relative pt-[100%]">
@@ -620,13 +562,13 @@ function ProductCard({ product }: { product: Product }) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
-      
+
       <div className="p-4">
         <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
           {product.name}
         </h3>
         <p className="mt-1 text-sm text-gray-500 line-clamp-2">{product.description}</p>
-        
+
         <div className="mt-4 flex items-center justify-between">
           <span className="text-lg font-bold text-blue-600">
             रु{product.price.toLocaleString('en-IN')}
@@ -694,7 +636,7 @@ function RecommendationCard({ product }: { product: RecommendedProduct }) {
           रु{product.price.toLocaleString('en-IN')}
         </p>
         <p className="text-xs text-gray-500">
-          {product.recommendationType.toLowerCase().replace('_', ' ')} • 
+          {product.recommendationType.toLowerCase().replace('_', ' ')} •
           Score: {(product.recommendationScore * 100).toFixed(0)}%
         </p>
       </div>

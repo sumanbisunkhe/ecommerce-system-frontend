@@ -8,6 +8,9 @@ import { ChevronLeft, Loader2, Plus, Minus, ShoppingCart, ChevronRight } from 'l
 import { Funnel_Sans, Markazi_Text } from "next/font/google";
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
+import Header from '@/app/header';
+import Footer from '@/components/ui/Footer';
+
 
 // Fonts
 const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
@@ -26,21 +29,6 @@ interface Product {
     updatedAt: string;
 }
 
-interface Recommendation {
-    id: number;
-    productId: number;
-    productName: string;
-    type: 'COLLABORATIVE' | 'CONTENT_BASED';
-    userId: number;
-    score: number;
-}
-
-// Add this interface after the existing interfaces
-interface RecommendedProduct extends Product {
-    recommendationType: 'COLLABORATIVE' | 'CONTENT_BASED';
-    recommendationScore: number;
-}
-
 interface Category {
     id: number;
     name: string;
@@ -56,8 +44,7 @@ export default function ProductDetailsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
-    const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-    const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>([]);
+    const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
     const [category, setCategory] = useState<Category | null>(null);
 
     useEffect(() => {
@@ -69,7 +56,7 @@ export default function ProductDetailsPage() {
                     ?.split('=')[1];
 
                 const response = await fetch(`http://localhost:8080/products/${params.id}`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    // headers: { Authorization: `Bearer ${token}` },
                 });
 
                 if (!response.ok) throw new Error('Failed to fetch product');
@@ -81,10 +68,10 @@ export default function ProductDetailsPage() {
                     const categoryResponse = await fetch(
                         `http://localhost:8080/categories/${data.data.categoryId}`,
                         {
-                            headers: { Authorization: `Bearer ${token}` },
+                            // headers: { Authorization: `Bearer ${token}` },
                         }
                     );
-                    
+
                     if (categoryResponse.ok) {
                         const categoryData = await categoryResponse.json();
                         if (categoryData.success) {
@@ -101,55 +88,25 @@ export default function ProductDetailsPage() {
             }
         };
 
-        // Fetch recommendations
-        const fetchRecommendations = async () => {
+        // Updated recommendation fetch function
+        const fetchRelatedProducts = async () => {
             try {
-                const userCookie = document.cookie
-                    .split('; ')
-                    .find(row => row.startsWith('user='))
-                    ?.split('=')[1];
+                const response = await fetch(`http://localhost:8080/products/${params.id}/related?limit=5`);
+                if (!response.ok) throw new Error('Failed to fetch related products');
 
-                if (!userCookie) return;
-
-                const userData = JSON.parse(decodeURIComponent(userCookie));
-                const userId = userData.id;
-                const token = document.cookie
-                    .split('; ')
-                    .find(row => row.startsWith('token='))
-                    ?.split('=')[1];
-
-                const response = await fetch(`http://localhost:8080/recommendations/user/${userId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch recommendations');
                 const data = await response.json();
-
                 if (data.success) {
-                    // Fetch product details for each recommendation
-                    const productDetailsPromises = data.data.map(async (rec: Recommendation) => {
-                        const productResponse = await fetch(`http://localhost:8080/products/${rec.productId}`, {
-                            headers: { Authorization: `Bearer ${token}` },
-                        });
-                        const productData = await productResponse.json();
-                        return {
-                            ...productData.data,
-                            recommendationType: rec.type,
-                            recommendationScore: rec.score,
-                        };
-                    });
-
-                    const recommendedProductsDetails = await Promise.all(productDetailsPromises);
-                    setRecommendedProducts(recommendedProductsDetails);
+                    setRelatedProducts(data.data);
                 }
             } catch (error) {
-                console.error('Failed to fetch recommendations:', error);
+                console.error('Failed to fetch related products:', error);
+                setRelatedProducts([]);
             }
         };
 
         if (params.id) {
             fetchProduct();
-            fetchRecommendations();
+            fetchRelatedProducts();
         }
     }, [params.id]);
 
@@ -160,49 +117,8 @@ export default function ProductDetailsPage() {
         });
     };
 
-    const addToCart = async () => {
-        if (!product) return;
-
-        try {
-            setIsAddingToCart(true);
-            const userCookie = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('user='))
-                ?.split('=')[1];
-
-            if (!userCookie) throw new Error('User not found');
-
-            const userData = JSON.parse(decodeURIComponent(userCookie));
-            const userId = userData.id;
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            const response = await fetch(
-                `http://localhost:8080/carts/${userId}/add/${product.id}?quantity=${quantity}`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/json'
-                    }
-                }
-            );
-
-            if (!response.ok) throw new Error('Failed to add to cart');
-
-            const data = await response.json();
-            if (data.success) {
-                notify.success('Added to cart successfully');
-            } else {
-                throw new Error(data.message);
-            }
-        } catch (error: any) {
-            notify.error(error.message);
-        } finally {
-            setIsAddingToCart(false);
-        }
+    const addToCart = () => {
+        router.push('/auth/login');
     };
 
     if (isLoading) {
@@ -219,7 +135,7 @@ export default function ProductDetailsPage() {
                 <div className="text-center">
                     <p className="text-gray-600 mb-4">Product not found</p>
                     <Link
-                        href="/customer/products"
+                        href="/products"
                         className="text-blue-600 hover:text-blue-700 flex items-center justify-center gap-2"
                     >
                         <ChevronLeft className="h-4 w-4" />
@@ -232,11 +148,12 @@ export default function ProductDetailsPage() {
 
     return (
         <div className={`${funnelSans.className} min-h-screen bg-gray-50 flex flex-col pt-16`}>
+            <Header />
             <NotificationProvider />
             <div className="flex-1 container mx-auto px-4 sm:px-6 py-6">
                 <div className="mb-4 flex items-center text-gray-700">
                     <Link
-                        href="/customer/products"
+                        href="/products"
                         className="flex items-center hover:text-blue-600 transition-colors"
                     >
                         <ChevronLeft className="h-5 w-5 mr-1" />
@@ -289,8 +206,8 @@ export default function ProductDetailsPage() {
                                         {category && (
                                             <div className="bg-gray-50 p-3 rounded-md sm:col-span-2">
                                                 <h3 className="text-xs font-medium text-gray-500 mb-1">Category</h3>
-                                                <Link 
-                                                    href={`/customer/products?category=${category.id}`}
+                                                <Link
+                                                    href={`/products?category=${category.id}`}
                                                     className="group inline-flex items-center gap-1"
                                                 >
                                                     <span className="text-sm md:text-base font-medium text-blue-600 group-hover:text-blue-700">
@@ -360,20 +277,20 @@ export default function ProductDetailsPage() {
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
                             <h3 className={`${markaziText.className} text-lg font-semibold mb-4`}>
-                                Recommended for you
+                                Related Products
                             </h3>
                             <div className="divide-y divide-gray-100">
-                                {recommendedProducts.slice(0, 5).map((product) => (
+                                {relatedProducts.map((relatedProduct) => (
                                     <Link
-                                        key={product.id}
-                                        href={`/customer/products/${product.id}`}
+                                        key={relatedProduct.id}
+                                        href={`/products/${relatedProduct.id}`}
                                         className="block hover:bg-gray-50 transition-colors"
                                     >
                                         <div className="flex gap-3 py-4 px-2">
                                             <div className="relative w-16 h-16 rounded-md border border-gray-200 overflow-hidden flex-shrink-0">
                                                 <Image
-                                                    src={product.imageUrl || '/product-placeholder.png'}
-                                                    alt={product.name}
+                                                    src={relatedProduct.imageUrl || '/product-placeholder.png'}
+                                                    alt={relatedProduct.name}
                                                     fill
                                                     className="object-cover"
                                                     sizes="68px"
@@ -381,15 +298,10 @@ export default function ProductDetailsPage() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h4 className="text-sm font-medium text-gray-900 truncate">
-                                                    {product.name}
+                                                    {relatedProduct.name}
                                                 </h4>
                                                 <p className="text-sm font-medium text-blue-600">
-                                                    रु {product.price.toLocaleString('en-IN')}
-                                                </p>
-                                                <p className="text-xs text-gray-500">
-                                                    {product.recommendationType === 'COLLABORATIVE'
-                                                        ? 'Based on similar users'
-                                                        : 'Similar product'}
+                                                    रु {relatedProduct.price.toLocaleString('en-IN')}
                                                 </p>
                                             </div>
                                         </div>
@@ -400,6 +312,9 @@ export default function ProductDetailsPage() {
                     </div>
                 </div>
             </div>
+             <div className="">
+        <Footer />
+      </div>
         </div>
     );
 }
