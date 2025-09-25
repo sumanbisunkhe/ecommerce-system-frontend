@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -23,6 +24,7 @@ import CountUp from 'react-countup';
 import { FiTrendingUp, FiBarChart2, FiClock, FiDollarSign, FiShoppingBag, FiCreditCard } from 'react-icons/fi';
 import { RiVipCrownFill } from 'react-icons/ri';
 import Footer from '@/components/ui/Footer';
+import { BASE_URL } from '@/config/api';
 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
 const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
@@ -248,7 +250,7 @@ export default function Analytics() {
           .find(row => row.startsWith('token='))
           ?.split('=')[1];
 
-        const response = await fetch(`http://localhost:8080/analytics/users/${userData.id}`, {
+        const response = await fetch(`${BASE_URL}/analytics/users/${userData.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -444,4 +446,3 @@ export default function Analytics() {
     </div>
   );
 }
-   

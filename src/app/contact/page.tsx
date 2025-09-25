@@ -1,7 +1,9 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Header from '../header';
 import Footer from '@/components/ui/Footer';
 
@@ -13,27 +15,28 @@ export default function ContactPage() {
     message: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
   const sectionRefs = useRef([]);
 
   useEffect(() => {
-    // Intersection Observer for scroll animations
+    const current = sectionRefs.current;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-fade-in');
+            setActiveSection(entry.target.id);
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.6 }
     );
 
-    sectionRefs.current.forEach((ref) => {
+    current.forEach((ref) => {
       if (ref) observer.observe(ref);
     });
 
     return () => {
-      sectionRefs.current.forEach((ref) => {
+      current.forEach((ref) => {
         if (ref) observer.unobserve(ref);
       });
     };

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react/no-unescaped-entities */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -11,6 +14,8 @@ import Link from 'next/link';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import KhaltiCallbackModal from '@/components/payment/KhaltiCallbackModal';
+import { BASE_URL } from '@/config/api';
+
 
 const funnelSans = Funnel_Sans({
     subsets: ["latin"],
@@ -71,7 +76,7 @@ export default function OrderDetailsPage() {
                     .find(row => row.startsWith('token='))
                     ?.split('=')[1];
 
-                const orderResponse = await fetch(`http://localhost:8080/orders/${id}`, {
+                const orderResponse = await fetch(`${BASE_URL}/orders/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
                 });
 
@@ -86,7 +91,7 @@ export default function OrderDetailsPage() {
                         orderData.data.items.map(async (item: OrderItem) => {
                             try {
                                 const productResponse = await fetch(
-                                    `http://localhost:8080/products/${item.productId}`,
+                                    `${BASE_URL}/products/${item.productId}`,
                                     { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' } }
                                 );
                                 if (!productResponse.ok) throw new Error('Failed to fetch product');
@@ -143,7 +148,7 @@ export default function OrderDetailsPage() {
 
                 // Fetch recommendations using user ID
                 const response = await fetch(
-                  `http://localhost:8080/recommendations/user/${userId}`,
+                  `${BASE_URL}/recommendations/user/${userId}`,
                   {
                     headers: { 
                       'Authorization': `Bearer ${token}`, 
@@ -160,7 +165,7 @@ export default function OrderDetailsPage() {
                   const recommendedProductsDetails = await Promise.all(
                     data.data.map(async (rec: any) => {
                       const productResponse = await fetch(
-                        `http://localhost:8080/products/${rec.productId}`,
+                        `${BASE_URL}/products/${rec.productId}`,
                         {
                           headers: { 'Authorization': `Bearer ${token}` },
                         }
@@ -212,7 +217,7 @@ export default function OrderDetailsPage() {
       if (!token) throw new Error('Authentication required');
 
       const response = await fetch(
-        `http://localhost:8080/payment/initiate?orderId=${id}`,
+        `${BASE_URL}/payment/initiate?orderId=${id}`,
         {
           method: 'POST',
           headers: {

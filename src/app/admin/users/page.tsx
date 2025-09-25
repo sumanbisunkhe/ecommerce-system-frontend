@@ -1,18 +1,23 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { FaUserPlus } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FiEdit2, FiTrash2, FiSearch, FiEye } from 'react-icons/fi';
+import { useAuth } from '@/hooks/useAuth';
 import { 
-  View, 
-  SquarePen, 
-  Trash2, 
-  User2, 
-  Search,
-  ArrowUpDown,
+  User, 
+  Users, 
+  Shield, 
+  UserCheck,
   ArrowUp,
   ArrowDown,
+  Search,
+  Filter,
   Settings2,
-  Filter
+  User2,
+  Eye as View,
+  SquarePen,
+  Trash2
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -21,6 +26,8 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Pagination from '@/components/ui/pagination';
+import { BASE_URL } from '@/config/api';
+
 
 // Google Fonts
 import { Funnel_Sans,Markazi_Text } from 'next/font/google';
@@ -80,7 +87,7 @@ export default function UsersPage() {
     try {
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
       const response = await fetch(
-        `http://localhost:8080/users?search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}`,
+        `${BASE_URL}/users?search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -114,7 +121,7 @@ export default function UsersPage() {
 
     try {
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-      const response = await fetch(`http://localhost:8080/users/${userId}`, {
+      const response = await fetch(`${BASE_URL}/users/${userId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -138,7 +145,7 @@ export default function UsersPage() {
   const handleToggleStatus = async (userId: number, currentStatus: boolean) => {
     try {
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-      const response = await fetch(`http://localhost:8080/users/${userId}/toggle-status`, {
+      const response = await fetch(`${BASE_URL}/users/${userId}/toggle-status`, {
         method: 'PUT',
         headers: { 
           Authorization: `Bearer ${token}`,

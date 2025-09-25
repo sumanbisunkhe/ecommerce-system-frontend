@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import AdminHeader from '@/components/dashboard/admin/header';
 import { Funnel_Sans } from 'next/font/google';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import toast from 'react-hot-toast';
 import { useSearchParams } from 'next/navigation';
+import { BASE_URL } from '@/config/api';
+import Image from 'next/image';
 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
 
@@ -64,6 +67,7 @@ const ImageCropper = ({
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   // Initialize image dimensions when loaded
   useEffect(() => {
@@ -158,8 +162,11 @@ const ImageCropper = ({
   };
 
   useEffect(() => {
-    drawCroppedImage();
-  }, [crop, zoom, rotation, imageDimensions]);
+    const canvas = canvasRef.current;
+    if (canvas && croppedAreaPixels) {
+      drawCroppedImage();
+    }
+  }, [croppedAreaPixels, drawCroppedImage]);
 
   // Handle drag to move image
   const [isDragging, setIsDragging] = useState(false);
@@ -400,7 +407,7 @@ export default function SettingsPage() {
       const formData = new FormData();
       formData.append('file', blob, 'profile-picture.jpg');
 
-      const uploadResponse = await fetch(`http://localhost:8080/users/${user.id}/upload-pp`, {
+      const uploadResponse = await fetch(`${BASE_URL}/users/${user.id}/upload-pp`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -476,7 +483,7 @@ export default function SettingsPage() {
       .find(row => row.startsWith('token='))
       ?.split('=')[1];
 
-    const response = await fetch(`http://localhost:8080/users/${user.id}/change-password`, {
+    const response = await fetch(`${BASE_URL}/users/${user.id}/change-password`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -538,10 +545,12 @@ export default function SettingsPage() {
                 <div className="flex flex-col items-center max-w-sm w-full">
                   <div className="relative mb-6 group">
                     <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:shadow-xl transition-shadow">
-                      <img
-                        src={user?.profilePictureUrl || '/default-avatar.png'}
+                      <Image
+                        src={user?.profilePicture || '/default-avatar.png'}
                         alt="Profile"
-                        className="w-full h-full object-cover"
+                        width={80}
+                        height={80}
+                        className="w-20 h-20 rounded-full object-cover"
                       />
                     </div>
 
@@ -584,10 +593,12 @@ export default function SettingsPage() {
 
               <div className="md:w-1/2">
                 <div className="aspect-square w-full max-w-md mx-auto bg-gray-100 rounded-xl overflow-hidden border-4 border-white shadow-lg">
-                  <img
-                    src={user?.profilePictureUrl || '/default-avatar.png'}
-                    alt="Profile Square View"
-                    className="w-full h-full object-contain"
+                  <Image
+                    src={user?.profilePicture || '/default-avatar.png'}
+                    alt="Current"
+                    width={100}
+                    height={100}
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>
@@ -671,6 +682,7 @@ export default function SettingsPage() {
                         name="confirmPassword"
                         type={showPasswords.confirm ? 'text' : 'password'}
                         required
+                        minLength={6}
                         placeholder="Confirm your new password"
                         className="pr-12"
                       />
@@ -695,21 +707,20 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="pt-4">
+                <div>
                   <Button
                     type="submit"
-                    disabled={passwordLoading}
+                    variant="primary"
                     className="w-full"
+                    disabled={passwordLoading}
                   >
                     {passwordLoading ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Changing Password...
-                      </>
-                    ) : 'Change Password'}
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : null}
+                    Change Password
                   </Button>
                 </div>
               </form>
@@ -717,20 +728,6 @@ export default function SettingsPage() {
           )}
         </Card>
       </div>
-
-      {cropperOpen && selectedImage && (
-        <ImageCropper
-          image={selectedImage}
-          onCrop={handleProfilePictureSave}
-          onCancel={() => {
-            setCropperOpen(false);
-            setSelectedImage(null);
-            if (fileInputRef.current) {
-              fileInputRef.current.value = '';
-            }
-          }}
-        />
-      )}
     </div>
   );
 }

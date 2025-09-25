@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
@@ -10,7 +11,11 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,17 +65,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Header */}
-      <AdminHeader 
-        user={user} 
+      <AdminHeader
+        user={user}
         isSidebarCollapsed={isSidebarCollapsed}
         sidebarWidth={sidebarWidth}
       />
 
       <div className="flex flex-1 transition-all duration-300">
         {/* Sidebar */}
-        <AdminSidebar 
-          user={user} 
-          onCollapse={handleSidebarCollapse} 
+        <AdminSidebar
+          user={user}
+          onCollapse={handleSidebarCollapse}
         />
 
         {/* Main Content */}
@@ -78,7 +83,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           style={{
             marginLeft: sidebarWidth,
             paddingTop: '64px', // Height of the header
-            transition: 'margin-left 0.3s ease-in-out'
+            transition: 'margin-left 0.3s ease-in-out',
           }}
           className="flex-1 p-6 min-h-screen"
         >

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -7,6 +8,8 @@ import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import toast from 'react-hot-toast';
 import { useSearchParams } from 'next/navigation';
+import { BASE_URL } from '@/config/api';
+
 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
 
@@ -400,7 +403,7 @@ export default function SettingsPage() {
       const formData = new FormData();
       formData.append('file', blob, 'profile-picture.jpg');
 
-      const uploadResponse = await fetch(`http://localhost:8080/users/${user.id}/upload-pp`, {
+      const uploadResponse = await fetch(`${BASE_URL}/users/${user.id}/upload-pp`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -476,7 +479,7 @@ export default function SettingsPage() {
       .find(row => row.startsWith('token='))
       ?.split('=')[1];
 
-    const response = await fetch(`http://localhost:8080/users/${user.id}/change-password`, {
+    const response = await fetch(`${BASE_URL}/users/${user.id}/change-password`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

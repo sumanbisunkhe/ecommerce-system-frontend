@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,6 +10,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import CheckoutModal from '@/components/checkout/CheckoutModal';
 import Footer from '@/components/ui/Footer';
+import { BASE_URL } from '@/config/api';
+
 
 const funnelSans = Funnel_Sans({
   subsets: ["latin"],
@@ -84,7 +87,7 @@ export default function CartPage() {
           ?.split('=')[1];
 
         const response = await fetch(
-          `http://localhost:8080/carts/${userId}`,
+          `${BASE_URL}/carts/${userId}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -106,7 +109,7 @@ export default function CartPage() {
               data.data.items.map(async (item: CartItem) => {
                 try {
                   const productResponse = await fetch(
-                    `http://localhost:8080/products/${item.productId}`,
+                    `${BASE_URL}/products/${item.productId}`,
                     {
                       headers: {
                         'Authorization': `Bearer ${token}`,
@@ -161,7 +164,7 @@ export default function CartPage() {
         .find(row => row.startsWith('token='))
         ?.split('=')[1];
 
-      const response = await fetch('http://localhost:8080/orders', {
+      const response = await fetch(`${BASE_URL}/orders`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -205,7 +208,7 @@ export default function CartPage() {
         .find(row => row.startsWith('token='))
         ?.split('=')[1];
 
-      const response = await fetch('http://localhost:8080/orders', {
+      const response = await fetch(`${BASE_URL}/orders`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -248,7 +251,7 @@ export default function CartPage() {
         ?.split('=')[1];
 
       const response = await fetch(
-        `http://localhost:8080/carts/${userId}/remove/${productId}`,
+        `${BASE_URL}/carts/${userId}/remove/${productId}`,
         {
           method: 'DELETE',
           headers: {
@@ -296,7 +299,7 @@ export default function CartPage() {
         ?.split('=')[1];
 
       const response = await fetch(
-        `http://localhost:8080/carts/${userId}/clear`,
+        `${BASE_URL}/carts/${userId}/clear`,
         {
           method: 'DELETE',
           headers: {

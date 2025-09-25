@@ -162,7 +162,7 @@ ecommerce-frontend/
 
 ```env
 # API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL=${BASE_URL}
 API_TIMEOUT=5000
 
 # Authentication
@@ -172,7 +172,7 @@ GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/db
+DATA${BASE_URL}=postgresql://user:password@localhost:5432/db
 
 # Feature Flags
 ENABLE_PREMIUM_FEATURES=true

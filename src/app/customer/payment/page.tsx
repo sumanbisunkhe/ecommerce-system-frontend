@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,6 +7,8 @@ import { CreditCard, Loader2, ListFilter, CheckCircle, Clock, XCircle } from 'lu
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Image from 'next/image';
+import { BASE_URL } from '@/config/api';
+
 
 const funnelSans = Funnel_Sans({
   subsets: ["latin"],
@@ -69,7 +72,7 @@ export default function PaymentHistoryPage() {
           ?.split('=')[1];
 
         const response = await fetch(
-          `http://localhost:8080/payment/user/${userId}?filter=${currentFilter}`,
+          `${BASE_URL}/payment/user/${userId}?filter=${currentFilter}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,

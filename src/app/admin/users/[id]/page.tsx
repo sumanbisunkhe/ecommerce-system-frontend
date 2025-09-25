@@ -5,6 +5,8 @@ import { useParams, useSearchParams } from 'next/navigation';
 import UserProfile, { UserDetails } from '@/components/ui/UserProfile';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
+import { BASE_URL } from '@/config/api';
+
 
 export default function UserViewPage() {
   const params = useParams();
@@ -22,7 +24,7 @@ export default function UserViewPage() {
           .find((row) => row.startsWith('token='))
           ?.split('=')[1];
 
-        const response = await fetch(`http://localhost:8080/users/${params.id}`, {
+        const response = await fetch(`${BASE_URL}/users/${params.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

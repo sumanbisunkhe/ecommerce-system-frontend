@@ -1,6 +1,6 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client'; 
-import { useState, useEffect, useCallback } from 'react'; 
-import { FaPlus } from 'react-icons/fa'; 
+import React, { useState, useEffect, useCallback } from 'react'; 
 import { View, SquarePen, Trash2, Search, ArrowUp, ArrowDown, Settings2, Filter, LayoutGrid ,CopyPlus} from 'lucide-react'; 
 import Link from 'next/link'; 
 import debounce from 'lodash/debounce'; 
@@ -8,6 +8,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { notify } from '@/components/ui/Notification'; 
 import NotificationProvider from '@/components/ui/Notification'; 
 import Pagination from '@/components/ui/pagination'; 
+import { BASE_URL } from '@/config/api';
 // Google Fonts 
 import { Funnel_Sans, Markazi_Text } from 'next/font/google'; 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' }); 
@@ -60,7 +61,7 @@ export default function CategoriesPage() {
     try { 
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1]; 
       const response = await fetch( 
-        `http://localhost:8080/categories?search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}`, 
+        `${BASE_URL}/categories?search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}`, 
         { headers: { Authorization: `Bearer ${token}` } } 
       ); 
       if (!response.ok) throw new Error('Failed to fetch categories'); 
@@ -91,7 +92,7 @@ export default function CategoriesPage() {
     setIsDeleting(true); 
     try { 
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1]; 
-      const response = await fetch(`http://localhost:8080/categories/${categoryId}`, { 
+      const response = await fetch(`${BASE_URL}/categories/${categoryId}`, { 
         method: 'DELETE', 
         headers: { Authorization: `Bearer ${token}` } 
       }); 
@@ -271,6 +272,9 @@ export default function CategoriesPage() {
                         <LayoutGrid className="mx-auto h-12 w-12 text-gray-300 mb-4" />
                         <p className="text-sm font-medium">No categories found</p>
                         <p className="text-xs text-gray-400 mt-1">Try adjusting your search criteria</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          No categories found. Please create your first category.
+                        </p>
                       </div>
                     </td>
                   </tr>

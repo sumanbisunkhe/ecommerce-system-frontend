@@ -1,13 +1,15 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { FiSearch, FiEye } from 'react-icons/fi';
 import { Funnel_Sans } from 'next/font/google';
-import { Filter, Search, ArrowUp, ArrowDown, View } from 'lucide-react';
+import { ArrowUp, ArrowDown } from 'lucide-react';
 import Link from 'next/link';
-import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Pagination from '@/components/ui/pagination';
 import debounce from 'lodash/debounce';
+import { BASE_URL } from '@/config/api';
 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
 
@@ -84,7 +86,7 @@ export default function OrdersPage() {
                 ?.split('=')[1];
 
             const response = await fetch(
-                `http://localhost:8080/orders?filter=${timeFilter}&search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}`,
+                `${BASE_URL}/orders?filter=${timeFilter}&search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -131,7 +133,7 @@ export default function OrdersPage() {
                 .find(row => row.startsWith('token='))
                 ?.split('=')[1];
 
-            const response = await fetch(`http://localhost:8080/products/${productId}`, {
+            const response = await fetch(`${BASE_URL}/products/${productId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -157,7 +159,7 @@ export default function OrdersPage() {
                 .find(row => row.startsWith('token='))
                 ?.split('=')[1];
 
-            const response = await fetch(`http://localhost:8080/users/${userId}`, {
+            const response = await fetch(`${BASE_URL}/users/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -178,7 +180,7 @@ export default function OrdersPage() {
 
     useEffect(() => {
         fetchOrders();
-    }, [timeFilter, searchTerm, pageInfo.number, pageInfo.size, sortBy, sortOrder]);
+    }, [fetchOrders]);
 
     const getStatusColor = (status: Order['status']) => {
         switch (status) {
@@ -249,7 +251,7 @@ export default function OrdersPage() {
                                 {/* Search */}
                                 <div className="flex-1 min-w-[300px] relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Search className="h-4 w-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                                        <FiSearch className="h-4 w-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
                                     </div>
                                     <input
                                         type="text"
@@ -371,7 +373,7 @@ export default function OrdersPage() {
                                 ) : orders.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                                            No orders found
+                                            No orders found. Orders will appear here once customers start placing them.
                                         </td>
                                     </tr>
                                 ) : (
@@ -418,7 +420,7 @@ export default function OrdersPage() {
                                                     href={`/admin/orders/${order.id}`}
                                                     className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 gap-2"
                                                 >
-                                                    <View className="w-4 h-4" />
+                                                    <FiEye className="w-4 h-4" />
 
                                                     View Details
                                                 </Link>

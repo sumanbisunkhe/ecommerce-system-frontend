@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import toast, { Toaster, ToastOptions } from 'react-hot-toast';

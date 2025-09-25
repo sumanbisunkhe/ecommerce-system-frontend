@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,6 +7,7 @@ import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Funnel_Sans } from "next/font/google";
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
+import { BASE_URL } from '@/config/api';
 
 const funnelSans = Funnel_Sans({
     subsets: ["latin"],
@@ -40,7 +42,7 @@ export default function KhaltiCallback() {
                     throw new Error('Invalid payment or order information');
                 }
 
-                const callbackResponse = await fetch('http://localhost:8080/payment/khalti/callback', {
+                const callbackResponse = await fetch(`${BASE_URL}/payment/khalti/callback`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,6 +9,8 @@ import { ChevronLeft, Loader2, Plus, Minus, ShoppingCart, ChevronRight } from 'l
 import { Funnel_Sans, Markazi_Text } from "next/font/google";
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
+import { BASE_URL } from '@/config/api';
+
 
 // Fonts
 const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
@@ -68,7 +71,7 @@ export default function ProductDetailsPage() {
                     .find((row) => row.startsWith('token='))
                     ?.split('=')[1];
 
-                const response = await fetch(`http://localhost:8080/products/${params.id}`, {
+                const response = await fetch(`${BASE_URL}/products/${params.id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -79,7 +82,7 @@ export default function ProductDetailsPage() {
                     setProduct(data.data);
                     // Fetch category details
                     const categoryResponse = await fetch(
-                        `http://localhost:8080/categories/${data.data.categoryId}`,
+                        `${BASE_URL}/categories/${data.data.categoryId}`,
                         {
                             headers: { Authorization: `Bearer ${token}` },
                         }
@@ -118,7 +121,7 @@ export default function ProductDetailsPage() {
                     .find(row => row.startsWith('token='))
                     ?.split('=')[1];
 
-                const response = await fetch(`http://localhost:8080/recommendations/user/${userId}`, {
+                const response = await fetch(`${BASE_URL}/recommendations/user/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -128,7 +131,7 @@ export default function ProductDetailsPage() {
                 if (data.success) {
                     // Fetch product details for each recommendation
                     const productDetailsPromises = data.data.map(async (rec: Recommendation) => {
-                        const productResponse = await fetch(`http://localhost:8080/products/${rec.productId}`, {
+                        const productResponse = await fetch(`${BASE_URL}/products/${rec.productId}`, {
                             headers: { Authorization: `Bearer ${token}` },
                         });
                         const productData = await productResponse.json();
@@ -180,7 +183,7 @@ export default function ProductDetailsPage() {
                 ?.split('=')[1];
 
             const response = await fetch(
-                `http://localhost:8080/carts/${userId}/add/${product.id}?quantity=${quantity}`,
+                `${BASE_URL}/carts/${userId}/add/${product.id}?quantity=${quantity}`,
                 {
                     method: 'POST',
                     headers: {

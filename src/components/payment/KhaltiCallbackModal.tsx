@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { notify } from '@/components/ui/Notification';
+import { BASE_URL } from '@/config/api';
 
 interface KhaltiCallbackModalProps {
     searchParams: URLSearchParams;
@@ -25,7 +27,7 @@ export default function KhaltiCallbackModal({ searchParams, onClose, onSuccess }
 
                 if (!token) throw new Error('Authentication required');
 
-                const response = await fetch(`http://localhost:8080/payment/khalti/callback?${searchParams.toString()}`, {
+                const response = await fetch(`${BASE_URL}/payment/khalti/callback?${searchParams.toString()}`, {
                     headers: {
                         'Authorization': `Bearer ${decodeURIComponent(token)}`,
                         'Accept': 'application/json'

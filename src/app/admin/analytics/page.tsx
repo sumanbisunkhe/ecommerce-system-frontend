@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react';
 import {
     BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis,
-    CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area
+    CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
 import {
-    Users, Package, ShoppingBag, CreditCard, TrendingUp, TrendingDown, ArrowUpRight,
-    UserCheck, UserX, Sparkles, Calendar, RefreshCw, Download, ChevronDown,
-    DollarSign, ShoppingCart, Tag, Box, Grid, Eye, BarChart3, PieChart as PieChartIcon
+    Users, Package, ShoppingBag, TrendingUp, TrendingDown, ArrowUpRight,
+    Calendar, RefreshCw, Download,
+    DollarSign, BarChart3
 } from 'lucide-react';
 import Image from 'next/image';
+import { BASE_URL } from '@/config/api';
 
 const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -73,7 +74,6 @@ export default function AnalyticsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [lastUpdated, setLastUpdated] = useState('');
-    const [timeRange, setTimeRange] = useState('30d');
 
     const fetchAnalytics = async () => {
         try {
@@ -83,7 +83,7 @@ export default function AnalyticsPage() {
                 .find((row) => row.startsWith('token='))
                 ?.split('=')[1];
 
-            const response = await fetch('http://localhost:8080/analytics/system', {
+            const response = await fetch(`${BASE_URL}/analytics/system`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

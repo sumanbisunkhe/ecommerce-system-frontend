@@ -6,6 +6,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, SquarePen } from 'lucide-react';
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
+import { BASE_URL } from '@/config/api';
+
+
 
 // Fonts
 const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
@@ -46,7 +49,7 @@ export default function ProductViewPage() {
           ?.split('=')[1];
 
         // Fetch product
-        const productResponse = await fetch(`http://localhost:8080/products/${params.id}`, {
+        const productResponse = await fetch(`${BASE_URL}/products/${params.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -58,7 +61,7 @@ export default function ProductViewPage() {
 
           // Fetch category if product has categoryId
           if (productData.data.categoryId) {
-            const categoryResponse = await fetch(`http://localhost:8080/categories/${productData.data.categoryId}`, {
+            const categoryResponse = await fetch(`${BASE_URL}/categories/${productData.data.categoryId}`, {
               headers: { Authorization: `Bearer ${token}` },
             });
 

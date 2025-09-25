@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Package2, User, MapPin, CreditCard, ClipboardList } from 'lucide-react';
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
+import { BASE_URL } from '@/config/api';
 
 // Fonts
 const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
@@ -55,7 +56,7 @@ export default function OrderDetailsPage() {
                     .find((row) => row.startsWith('token='))
                     ?.split('=')[1];
 
-                const response = await fetch(`http://localhost:8080/orders/${params.id}`, {
+                const response = await fetch(`${BASE_URL}/orders/${params.id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -93,7 +94,7 @@ export default function OrderDetailsPage() {
                 .find((row) => row.startsWith('token='))
                 ?.split('=')[1];
 
-            const response = await fetch(`http://localhost:8080/products/${productId}`, {
+            const response = await fetch(`${BASE_URL}/products/${productId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -121,7 +122,7 @@ export default function OrderDetailsPage() {
                 .find((row) => row.startsWith('token='))
                 ?.split('=')[1];
 
-            const response = await fetch(`http://localhost:8080/users/${userId}`, {
+            const response = await fetch(`${BASE_URL}/users/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 

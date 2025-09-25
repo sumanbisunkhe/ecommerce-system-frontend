@@ -21,6 +21,8 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Pagination from '@/components/ui/pagination';
+import { BASE_URL } from '@/config/api';
+
 
 // Google Fonts
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
@@ -76,7 +78,7 @@ export default function ProductsPage() {
     const fetchCategoryById = useCallback(async (id: number) => {
         try {
             const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-            const response = await fetch(`http://localhost:8080/categories/${id}`, {
+            const response = await fetch(`${BASE_URL}/categories/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!response.ok) throw new Error('Failed to fetch category');
@@ -99,7 +101,7 @@ export default function ProductsPage() {
         const fetchCategories = async () => {
             try {
                 const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                const response = await fetch('http://localhost:8080/categories/all', {
+                const response = await fetch(`${BASE_URL}/categories/all`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (!response.ok) throw new Error('Failed to fetch categories');
@@ -133,7 +135,7 @@ export default function ProductsPage() {
             const activeParam = activeFilter !== 'all' ? `&active=${activeFilter === 'active'}` : '';
 
             const response = await fetch(
-                `http://localhost:8080/products/all?search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}${categoryParam}${activeParam}`,
+                `${BASE_URL}/products/all?search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}${categoryParam}${activeParam}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -185,7 +187,7 @@ export default function ProductsPage() {
         setIsDeleting(true);
         try {
             const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-            const response = await fetch(`http://localhost:8080/products/${productId}`, {
+            const response = await fetch(`${BASE_URL}/products/${productId}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });

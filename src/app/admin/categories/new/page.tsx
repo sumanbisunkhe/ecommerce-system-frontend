@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { BASE_URL } from '@/config/api';
+
 
 // Icons
 import { ChevronLeft, Tag, FileText, PlusCircle, Loader2 } from 'lucide-react';
@@ -50,7 +52,7 @@ export default function NewCategoryPage() {
                 .find(row => row.startsWith('token='))
                 ?.split('=')[1];
 
-            const response = await fetch('http://localhost:8080/categories', {
+            const response = await fetch(`${BASE_URL}/categories`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

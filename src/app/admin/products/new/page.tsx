@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Upload, DollarSign, Package, Tag, Check, X, ImageIcon, Trash2 } from 'lucide-react';
+import { ChevronLeft, DollarSign, Package, Tag, Check, X, ImageIcon, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
+import { BASE_URL } from '@/config/api';
+
 
 // Google Fonts
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
@@ -47,7 +49,7 @@ export default function NewProductPage() {
         const fetchCategories = async () => {
             try {
                 const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                const response = await fetch('http://localhost:8080/categories/all', {
+                const response = await fetch(`${BASE_URL}/categories/all`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (!response.ok) throw new Error('Failed to fetch categories');
@@ -87,7 +89,7 @@ export default function NewProductPage() {
             formDataToSend.append('product', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
             if (selectedImage) formDataToSend.append('image', selectedImage);
 
-            const response = await fetch('http://localhost:8080/products', {
+            const response = await fetch(`${BASE_URL}/products`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -319,7 +321,7 @@ export default function NewProductPage() {
                                         id="categoryId"
                                         name="categoryId"
                                         required
-                                        value={formData.categoryId}
+                                        value={formData.categoryId ?? ''}
                                         onChange={handleChange}
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                                     >

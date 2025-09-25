@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react/no-unescaped-entities */
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,6 +12,8 @@ import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Pagination from '@/components/ui/pagination';
 import Link from 'next/link';
+import { BASE_URL } from '@/config/api';
+
 
 const funnelSans = Funnel_Sans({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
@@ -143,7 +148,7 @@ export default function ProductsPage() {
 
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
       const response = await fetch(
-        `http://localhost:8080/products/all?${queryParams}`,
+        `${BASE_URL}/products/all?${queryParams}`,
         { 
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -197,7 +202,7 @@ export default function ProductsPage() {
 
           // Fetch recommendations
           const recResponse = await fetch(
-            `http://localhost:8080/recommendations/user/${userId}`,
+            `${BASE_URL}/recommendations/user/${userId}`,
             {
               headers: {
                 'Authorization': `Bearer ${token}`,
@@ -215,7 +220,7 @@ export default function ProductsPage() {
             // Fetch product details for each recommendation
             const productPromises = recData.data.map(async (rec: Recommendation) => {
               const prodResponse = await fetch(
-                `http://localhost:8080/products/${rec.productId}`,
+                `${BASE_URL}/products/${rec.productId}`,
                 {
                   headers: {
                     'Authorization': `Bearer ${token}`,
@@ -250,7 +255,7 @@ export default function ProductsPage() {
       try {
         const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
         const response = await fetch(
-          'http://localhost:8080/analytics/system',
+          `${BASE_URL}/analytics/system`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -306,7 +311,7 @@ export default function ProductsPage() {
         .find(row => row.startsWith('token='))
         ?.split('=')[1];
 
-      const response = await fetch('http://localhost:8080/categories/all', {
+      const response = await fetch(`${BASE_URL}/categories/all`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
@@ -581,7 +586,7 @@ function ProductCard({ product }: { product: Product }) {
         ?.split('=')[1];
 
       const response = await fetch(
-        `http://localhost:8080/carts/${userId}/add/${product.id}`,
+        `${BASE_URL}/carts/${userId}/add/${product.id}`,
         {
           method: 'POST',
           headers: {

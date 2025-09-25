@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,6 +10,8 @@ import NotificationProvider from '@/components/ui/Notification';
 import { useRouter } from 'next/navigation';
 import Header from '@/app/header';
 import Footer from '@/components/ui/Footer';
+import { BASE_URL } from '@/config/api';
+
 
 const funnelSans = Funnel_Sans({
   subsets: ["latin"],
@@ -75,7 +78,7 @@ export default function CategoriesPage() {
 
         // if (!token) throw new Error('Authentication token not found');
 
-        const response = await fetch('http://localhost:8080/categories/all', {
+        const response = await fetch(`${BASE_URL}/categories/all`, {
           headers: {
             // 'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'

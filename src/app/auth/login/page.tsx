@@ -8,6 +8,8 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Footer from '@/components/ui/Footer';
+import { BASE_URL } from '@/config/api';
+
 
 
 
@@ -35,7 +37,7 @@ export default function LoginPage() {
     notify.loading('Signing in...');
 
     try {
-      const response = await fetch('http://localhost:8080/auth/login', {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

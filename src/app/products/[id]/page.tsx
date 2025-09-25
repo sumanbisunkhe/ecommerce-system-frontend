@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,6 +11,8 @@ import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Header from '@/app/header';
 import Footer from '@/components/ui/Footer';
+import { BASE_URL } from '@/config/api';
+
 
 
 // Fonts
@@ -55,7 +58,7 @@ export default function ProductDetailsPage() {
                     .find((row) => row.startsWith('token='))
                     ?.split('=')[1];
 
-                const response = await fetch(`http://localhost:8080/products/${params.id}`, {
+                const response = await fetch(`${BASE_URL}/products/${params.id}`, {
                     // headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -66,7 +69,7 @@ export default function ProductDetailsPage() {
                     setProduct(data.data);
                     // Fetch category details
                     const categoryResponse = await fetch(
-                        `http://localhost:8080/categories/${data.data.categoryId}`,
+                        `${BASE_URL}/categories/${data.data.categoryId}`,
                         {
                             // headers: { Authorization: `Bearer ${token}` },
                         }
@@ -91,7 +94,7 @@ export default function ProductDetailsPage() {
         // Updated recommendation fetch function
         const fetchRelatedProducts = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/products/${params.id}/related?limit=5`);
+                const response = await fetch(`${BASE_URL}/products/${params.id}/related?limit=5`);
                 if (!response.ok) throw new Error('Failed to fetch related products');
 
                 const data = await response.json();

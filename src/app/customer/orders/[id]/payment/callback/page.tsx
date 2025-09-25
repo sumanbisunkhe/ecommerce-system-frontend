@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react/no-unescaped-entities */
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -5,6 +8,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Funnel_Sans } from "next/font/google";
 import { notify } from '@/components/ui/Notification';
+import { BASE_URL } from '@/config/api';
+
 
 const funnelSans = Funnel_Sans({
     subsets: ["latin"],
@@ -33,7 +38,7 @@ export default function PaymentCallback() {
                     params.append(key, value);
                 });
 
-                const response = await fetch(`http://localhost:8080/payment/khalti/callback?${params.toString()}`, {
+                const response = await fetch(`${BASE_URL}/payment/khalti/callback?${params.toString()}`, {
                     headers: {
                         'Authorization': `Bearer ${decodeURIComponent(token)}`,
                         'Accept': 'application/json'

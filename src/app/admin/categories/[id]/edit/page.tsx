@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import { BASE_URL } from '@/config/api';
+
 
 // Icons
 import { ChevronLeft, Tag, FileText, Loader2, Save } from 'lucide-react';
@@ -37,7 +39,7 @@ export default function EditCategoryPage() {
     const fetchCategory = async () => {
       try {
         const token = document.cookie.split('; ').find(r => r.startsWith('token='))?.split('=')[1];
-        const response = await fetch(`http://localhost:8080/categories/${params.id}`, {
+        const response = await fetch(`${BASE_URL}/categories/${params.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -73,7 +75,7 @@ export default function EditCategoryPage() {
 
     try {
       const token = document.cookie.split('; ').find(r => r.startsWith('token='))?.split('=')[1];
-      const response = await fetch(`http://localhost:8080/categories/${params.id}`, {
+      const response = await fetch(`${BASE_URL}/categories/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

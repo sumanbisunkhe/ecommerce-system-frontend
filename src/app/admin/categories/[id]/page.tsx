@@ -7,6 +7,8 @@ import { ChevronLeft, SquarePen, Trash2, FileText, Calendar } from 'lucide-react
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { BASE_URL } from '@/config/api';
+
 
 // Google Fonts
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
@@ -34,7 +36,7 @@ export default function CategoryDetailsPage() {
     const fetchCategory = async () => {
       try {
         const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-        const response = await fetch(`http://localhost:8080/categories/${params.id}`, {
+        const response = await fetch(`${BASE_URL}/categories/${params.id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -62,7 +64,7 @@ export default function CategoryDetailsPage() {
     setIsDeleting(true);
     try {
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-      const response = await fetch(`http://localhost:8080/categories/${params.id}`, {
+      const response = await fetch(`${BASE_URL}/categories/${params.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

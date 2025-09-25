@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { Fascinate, Funnel_Sans } from 'next/font/google';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
+import { BASE_URL } from '@/config/api';
+
 
 const fascinate = Fascinate({
   subsets: ['latin'],
@@ -49,7 +51,7 @@ export default function RegisterPage() {
     notify.loading('Creating your account...');
 
     try {
-      const response = await fetch('http://localhost:8080/auth', {
+      const response = await fetch(`${BASE_URL}/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

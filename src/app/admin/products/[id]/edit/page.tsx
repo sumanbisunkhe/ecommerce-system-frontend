@@ -1,23 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import {
-  ChevronLeft,
-  Upload,
-  DollarSign,
-  Package,
-  Tag,
-  Check,
-  X,
-  ImageIcon,
-  Trash2,
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { 
+  FiSave, 
+  FiX, 
+  FiImage,
+  FiPackage,
+  FiTag
+} from 'react-icons/fi';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
+import { BASE_URL } from '@/config/api';
+
 
 // Fonts
 const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
@@ -64,7 +62,7 @@ export default function UpdateProductPage() {
           .find((row) => row.startsWith('token='))
           ?.split('=')[1];
 
-        const res = await fetch('http://localhost:8080/categories/all', {
+        const res = await fetch(`${BASE_URL}/categories/all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -86,7 +84,7 @@ export default function UpdateProductPage() {
           .find((row) => row.startsWith('token='))
           ?.split('=')[1];
 
-        const res = await fetch(`http://localhost:8080/products/${productId}`, {
+        const res = await fetch(`${BASE_URL}/products/${productId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -161,7 +159,7 @@ export default function UpdateProductPage() {
       formDataToSend.append('product', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
       if (selectedImage) formDataToSend.append('image', selectedImage);
 
-      const res = await fetch(`http://localhost:8080/products/${productId}`, {
+      const res = await fetch(`${BASE_URL}/products/${productId}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
         body: formDataToSend,
@@ -193,7 +191,7 @@ export default function UpdateProductPage() {
               href="/admin/products"
               className="flex items-center text-gray-500 hover:text-gray-700 transition-colors"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <FiX className="h-5 w-5" />
             </Link>
             <h1 className={`${markaziText.className} text-2xl font-semibold text-gray-900`}>
               Update Product
@@ -217,7 +215,7 @@ export default function UpdateProductPage() {
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <Check className="h-4 w-4" />
+                  <FiSave className="h-4 w-4" />
                   <span>Update Product</span>
                 </>
               )}
@@ -251,12 +249,12 @@ export default function UpdateProductPage() {
                       onClick={removeImage}
                       className="absolute top-2 right-2 p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <FiX className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
                   <label className="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-200 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <ImageIcon className="w-10 h-10 mb-2 text-gray-400" />
+                    <FiImage className="w-10 h-10 mb-2 text-gray-400" />
                     <p className="text-sm text-gray-500 font-medium">Click to upload</p>
                     <input
                       type="file"
@@ -331,7 +329,7 @@ export default function UpdateProductPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                <Package className="w-4 h-4 mr-1" /> Stock *
+                <FiPackage className="w-4 h-4 mr-1" /> Stock *
               </label>
               <input
                 type="number"
@@ -345,7 +343,7 @@ export default function UpdateProductPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                <Tag className="w-4 h-4 mr-1" /> Category *
+                <FiTag className="w-4 h-4 mr-1" /> Category *
               </label>
               <select
                 name="categoryId"
@@ -376,12 +374,12 @@ export default function UpdateProductPage() {
                 <div className="flex items-center justify-center w-full space-x-2">
                   {formData.active ? (
                     <>
-                      <Check className="h-4 w-4" />
+                      <FiSave className="h-4 w-4" />
                       <span>Active</span>
                     </>
                   ) : (
                     <>
-                      <X className="h-4 w-4" />
+                      <FiX className="h-4 w-4" />
                       <span>Inactive</span>
                     </>
                   )}

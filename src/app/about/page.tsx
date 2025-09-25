@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import Link from 'next/link';
@@ -8,7 +9,7 @@ import Footer from '@/components/ui/Footer';
 
 export default function AboutPage() {
   const [isVisible, setIsVisible] = useState(false);
-  const sectionRefs = useRef([]);
+  const sectionRefs = useRef<HTMLElement[]>([]);
 
   useEffect(() => {
     setIsVisible(true);
@@ -25,12 +26,15 @@ export default function AboutPage() {
       { threshold: 0.1 }
     );
 
-    sectionRefs.current.forEach((ref) => {
+    // Copy ref value to a variable inside the effect
+    const currentRefs = sectionRefs.current;
+
+    currentRefs.forEach((ref) => {
       if (ref) observer.observe(ref);
     });
 
     return () => {
-      sectionRefs.current.forEach((ref) => {
+      currentRefs.forEach((ref) => {
         if (ref) observer.unobserve(ref);
       });
     };
@@ -116,7 +120,7 @@ export default function AboutPage() {
   ];
 
   // Add ref to each section for animation
-  const addToRefs = (el) => {
+  const addToRefs = (el: HTMLElement | null) => {
     if (el && !sectionRefs.current.includes(el)) {
       sectionRefs.current.push(el);
     }
@@ -161,7 +165,7 @@ export default function AboutPage() {
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight">Our Story</h1>
               <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Founded in 2025, we started with a simple idea: make online shopping effortless, enjoyable, and accessible to everyone.
-                Today, we're proud to serve customers worldwide with carefully curated products and exceptional service.
+                Today, we&apos;re proud to serve customers worldwide with carefully curated products and exceptional service.
               </p>
               <div className="mt-10 flex justify-center">
                 <div className="h-1 w-20 bg-indigo-600 rounded-full"></div>

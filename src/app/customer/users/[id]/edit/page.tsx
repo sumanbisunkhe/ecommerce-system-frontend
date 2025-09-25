@@ -6,6 +6,7 @@ import { View, ChevronLeft } from 'lucide-react';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Link from 'next/link';
+import { BASE_URL } from '@/config/api';
 
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
@@ -43,7 +44,7 @@ export default function EditUser() {
     const fetchUser = async () => {
       try {
         const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-        const response = await fetch(`http://localhost:8080/users/${params.id}`, {
+        const response = await fetch(`${BASE_URL}/users/${params.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -92,7 +93,7 @@ export default function EditUser() {
         Object.entries(formData).filter(([_, value]) => value !== null && value !== '')
       );
 
-      const response = await fetch(`http://localhost:8080/users/${params.id}`, {
+      const response = await fetch(`${BASE_URL}/users/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

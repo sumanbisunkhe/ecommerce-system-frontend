@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,6 +8,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
+import { BASE_URL } from '@/config/api';
+
 
 const funnelSans = Funnel_Sans({
   subsets: ["latin"],
@@ -100,7 +103,7 @@ export default function TrendsPage() {
           ?.split('=')[1];
 
         // Fetch system analytics for popular and new products
-        const analyticsResp = await fetch('http://localhost:8080/analytics/system', {
+        const analyticsResp = await fetch(`${BASE_URL}/analytics/system`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -122,7 +125,7 @@ export default function TrendsPage() {
           const userData = JSON.parse(decodeURIComponent(userCookie));
           const userId = userData.id;
 
-          const recResp = await fetch(`http://localhost:8080/recommendations/user/${userId}`, {
+          const recResp = await fetch(`${BASE_URL}/recommendations/user/${userId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           
@@ -131,7 +134,7 @@ export default function TrendsPage() {
             if (recData.success) {
               const prodDetails = await Promise.all(
                 recData.data.map(async (rec: any) => {
-                  const pResp = await fetch(`http://localhost:8080/products/${rec.productId}`, {
+                  const pResp = await fetch(`${BASE_URL}/products/${rec.productId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                   });
                   const pData = await pResp.json();

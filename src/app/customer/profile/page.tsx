@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,6 +7,8 @@ import CustomerProfile, { UserDetails } from '@/components/ui/CustomerProfile';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import { Funnel_Sans } from "next/font/google";
+import { BASE_URL } from '@/config/api';
+
 
 const funnelSans = Funnel_Sans({
   subsets: ["latin"],
@@ -24,7 +27,7 @@ export default function ProfilePage() {
           .find(row => row.startsWith('token='))
           ?.split('=')[1];
 
-        const response = await fetch('http://localhost:8080/users/profile', {
+        const response = await fetch(`${BASE_URL}/users/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
