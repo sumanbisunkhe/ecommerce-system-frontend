@@ -272,7 +272,7 @@ export default function PaymentHistoryPage() {
                   </div>
                   {datePayments.map((payment) => {
                     const statusConfig = getStatusConfig(payment.status);
-                    const { date, time } = formatDate(payment.createdAt);
+                    const { time } = formatDate(payment.createdAt);
                     
                     return (
                       <div 

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import AdminHeader from '@/components/dashboard/admin/header';
 import { Funnel_Sans } from 'next/font/google';
 import { notify } from '@/components/ui/Notification';
@@ -9,6 +9,7 @@ import NotificationProvider from '@/components/ui/Notification';
 import toast from 'react-hot-toast';
 import { useSearchParams } from 'next/navigation';
 import { BASE_URL } from '@/config/api';
+import Image from 'next/image';
 
 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
@@ -72,7 +73,7 @@ const ImageCropper = ({
   useEffect(() => {
     if (!imageRef.current) return;
 
-    const img = new Image();
+    const img = document.createElement('img');
     img.onload = () => {
       setImageDimensions({
         width: img.width,
@@ -83,7 +84,7 @@ const ImageCropper = ({
   }, [image]);
 
   // Draw cropped image on canvas
-  const drawCroppedImage = () => {
+  const drawCroppedImage = useCallback(() => {
     if (!canvasRef.current || !imageRef.current) return;
 
     const ctx = canvasRef.current.getContext('2d');
@@ -120,7 +121,7 @@ const ImageCropper = ({
     // Draw the image
     ctx.drawImage(imageRef.current, 0, 0);
     ctx.restore();
-  };
+  }, [crop, zoom, rotation, imageDimensions]);
 
   const handleCrop = () => {
     if (!canvasRef.current || !imageRef.current) return;
@@ -162,7 +163,7 @@ const ImageCropper = ({
 
   useEffect(() => {
     drawCroppedImage();
-  }, [crop, zoom, rotation, imageDimensions]);
+  }, [drawCroppedImage]);
 
   // Handle drag to move image
   const [isDragging, setIsDragging] = useState(false);
@@ -241,22 +242,24 @@ const ImageCropper = ({
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
-              onWheel={handleWheel} // Add wheel event handler
+              onWheel={handleWheel}
             >
               <div
                 className="relative overflow-hidden w-full h-full"
                 style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
               >
-                <img
+                <Image
                   ref={imageRef}
                   src={image}
                   alt="Crop preview"
-                  className="absolute top-0 left-0 pointer-events-none"
+                  fill
+                  className="absolute top-0 left-0 pointer-events-none object-contain"
                   style={{
                     transform: `translate(${crop.x}px, ${crop.y}px) scale(${zoom}) rotate(${rotation}deg)`,
                     transformOrigin: 'center center',
                   }}
                   draggable={false}
+                  sizes="400px"
                 />
                 <div className="absolute inset-0 border-2 border-white border-dashed rounded-full pointer-events-none"></div>
               </div>
@@ -541,9 +544,11 @@ export default function SettingsPage() {
                 <div className="flex flex-col items-center max-w-sm w-full">
                   <div className="relative mb-6 group">
                     <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-white shadow-lg group-hover:shadow-xl transition-shadow">
-                      <img
+                      <Image
                         src={user?.profilePictureUrl || '/default-avatar.png'}
                         alt="Profile"
+                        width={192}
+                        height={192}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -587,9 +592,11 @@ export default function SettingsPage() {
 
               <div className="md:w-1/2">
                 <div className="aspect-square w-full max-w-md mx-auto bg-gray-100 rounded-xl overflow-hidden border-4 border-white shadow-lg">
-                  <img
+                  <Image
                     src={user?.profilePictureUrl || '/default-avatar.png'}
                     alt="Profile Square View"
+                    width={400}
+                    height={400}
                     className="w-full h-full object-contain"
                   />
                 </div>

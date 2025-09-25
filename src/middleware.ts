@@ -37,7 +37,7 @@ export function middleware(request: NextRequest) {
       } else if (userData.roles.includes('CUSTOMER')) {
         return NextResponse.redirect(new URL('/customer/products', request.url))
       }
-    } catch (error) {
+    } catch {
       // If user data is invalid, clear cookies and redirect to login
       const response = NextResponse.redirect(new URL('/auth/login', request.url))
       response.cookies.delete('token')
@@ -81,7 +81,7 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/customer/products', request.url))
       }
       
-    } catch (error) {
+    } catch {
       // If user data is invalid, clear cookies and redirect to login
       const response = NextResponse.redirect(new URL('/auth/login', request.url))
       response.cookies.delete('token')

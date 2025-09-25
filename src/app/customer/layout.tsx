@@ -37,7 +37,7 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
           router.replace('/customer/products');
           return;
         }
-      } catch (error) {
+      } catch {
         router.push('/auth/login');
       }
     } else {

@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { FiSearch, FiEye } from 'react-icons/fi';
 import { Funnel_Sans } from 'next/font/google';
 import { ArrowUp, ArrowDown } from 'lucide-react';
@@ -70,61 +70,75 @@ export default function OrdersPage() {
     const [sortOrder, setSortOrder] = useState('desc');
 
     // Debounced search
-    const debouncedSearch = debounce((value: string) => {
-        setSearchTerm(value);
-        setPageInfo(prev => ({ ...prev, number: 0 }));
-    }, 500);
+    const debouncedSearch = useMemo(
+        () =>
+            debounce((value: string) => {
+                setSearchTerm(value);
+                setPageInfo(prev => ({ ...prev, number: 0 }));
+            }, 500),
+        []
+    );
+
+    // Cleanup debounced function on unmount
+    useEffect(() => {
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
 
     // Fetch orders
-    const fetchOrders = async () => {
-        setIsLoading(true);
-        setError('');
-        try {
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
+    const fetchOrders = useCallback(
+        async () => {
+            setIsLoading(true);
+            setError('');
+            try {
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('token='))
+                    ?.split('=')[1];
 
-            const response = await fetch(
-                `${BASE_URL}/orders?filter=${timeFilter}&search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+                const response = await fetch(
+                    `${BASE_URL}/orders?filter=${timeFilter}&search=${searchTerm}&page=${pageInfo.number}&size=${pageInfo.size}&sortBy=${sortBy}&ascending=${sortOrder === 'asc'}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
 
-            if (!response.ok) throw new Error('Failed to fetch orders');
-            const data = await response.json();
+                if (!response.ok) throw new Error('Failed to fetch orders');
+                const data = await response.json();
 
-            if (data.success) {
-                const orders = data.data.content;
-                setOrders(orders);
-                setPageInfo(prev => ({
-                    ...prev,
-                    totalElements: data.data.page.totalElements,
-                    totalPages: data.data.page.totalPages,
-                }));
+                if (data.success) {
+                    const orders = data.data.content;
+                    setOrders(orders);
+                    setPageInfo(prev => ({
+                        ...prev,
+                        totalElements: data.data.page.totalElements,
+                        totalPages: data.data.page.totalPages,
+                    }));
 
-                // Fetch missing product and user details
-                orders.forEach((order: Order) => {
-                    // Fetch user info if not cached
-                    if (!userCache[order.userId]) {
-                        fetchUser(order.userId);
-                    }
-
-                    // Fetch product info for each item if not cached
-                    order.items.forEach((item: OrderItem) => {
-                        if (!productCache[item.productId]) {
-                            fetchProduct(item.productId);
+                    // Fetch missing product and user details
+                    orders.forEach((order: Order) => {
+                        // Fetch user info if not cached
+                        if (!userCache[order.userId]) {
+                            fetchUser(order.userId);
                         }
+
+                        // Fetch product info for each item if not cached
+                        order.items.forEach((item: OrderItem) => {
+                            if (!productCache[item.productId]) {
+                                fetchProduct(item.productId);
+                            }
+                        });
                     });
-                });
-            } else {
-                throw new Error(data.message);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'An error occurred');
+            } finally {
+                setIsLoading(false);
             }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+        [timeFilter, searchTerm, pageInfo.number, pageInfo.size, sortBy, sortOrder, userCache, productCache]
+    );
 
     const fetchProduct = async (productId: number) => {
         try {

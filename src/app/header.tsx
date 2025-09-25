@@ -4,9 +4,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { ShoppingCart, Package2, LayoutGrid, ChartColumnStacked, Star, ChartLine, CreditCard, LogOut, Settings, ChevronDown, Eye, Search, X } from 'lucide-react';
+import { ShoppingCart,LayoutGrid, ChartColumnStacked,LogOut, Settings, ChevronDown, Eye, Search, X } from 'lucide-react';
 import { Funnel_Sans, Fascinate } from "next/font/google";
 import debounce from 'lodash/debounce';
+import Image from 'next/image';
 
 const funnelSans = Funnel_Sans({ subsets: ["latin"], weight: ["400", "600", "700"] });
 const fascinate = Fascinate({
@@ -38,9 +39,9 @@ export default function Header({ user: initialUser }: HeaderProps) {
     if (urlSearchQuery) {
       setSearchQuery(urlSearchQuery);
     }
-  }, []);
+  }, [searchParams]);
 
-  // Memoize the debounced search function
+  // Fix the debounced search function with proper dependencies
   const debouncedSearch = useCallback(
     debounce((query: string) => {
       if (pathname.startsWith('/products')) {
@@ -198,9 +199,11 @@ export default function Header({ user: initialUser }: HeaderProps) {
                     className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition-all duration-200"
                   >
                     {user?.profilePictureUrl ? (
-                      <img
+                      <Image
                         src={user.profilePictureUrl}
                         alt="Profile"
+                        width={32}
+                        height={32}
                         className="h-8 w-8 rounded-full object-cover border border-gray-300"
                         key={user.profilePictureUrl}
                       />

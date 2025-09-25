@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, Loader2, Plus, Minus, ShoppingCart, ChevronRight } from 'lucide-react';
@@ -54,12 +54,10 @@ interface Category {
 
 export default function ProductDetailsPage() {
     const params = useParams();
-    const router = useRouter();
     const [product, setProduct] = useState<Product | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
-    const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>([]);
     const [category, setCategory] = useState<Category | null>(null);
 

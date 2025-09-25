@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Package2, User, MapPin, CreditCard, ClipboardList } from 'lucide-react';
+import { ChevronLeft, Package2, User, MapPin, ClipboardList } from 'lucide-react';
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
 import { BASE_URL } from '@/config/api';
 
@@ -48,6 +48,68 @@ export default function OrderDetailsPage() {
     const [productCache, setProductCache] = useState<Record<number, Product>>({});
     const [userCache, setUserCache] = useState<Record<number, User | null>>({});
 
+    const fetchProduct = useCallback(
+        async (productId: number) => {
+            if (productCache[productId]) return;
+
+            try {
+                const token = document.cookie
+                    .split('; ')
+                    .find((row) => row.startsWith('token='))
+                    ?.split('=')[1];
+
+                const response = await fetch(`${BASE_URL}/products/${productId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch product');
+                const data = await response.json();
+
+                if (data.success) {
+                    const product = data.data;
+                    setProductCache((prev) => ({
+                        ...prev,
+                        [productId]: { id: product.id, name: product.name, price: product.price },
+                    }));
+                }
+            } catch (err) {
+                console.error(`Error fetching product ${productId}:`, err);
+            }
+        },
+        [productCache]
+    );
+
+    const fetchUser = useCallback(
+        async (userId: number) => {
+            if (userCache[userId]) return;
+
+            try {
+                const token = document.cookie
+                    .split('; ')
+                    .find((row) => row.startsWith('token='))
+                    ?.split('=')[1];
+
+                const response = await fetch(`${BASE_URL}/users/${userId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch user');
+                const data = await response.json();
+
+                if (data.success) {
+                    const user = data.data;
+                    setUserCache((prev) => ({
+                        ...prev,
+                        [userId]: { id: user.id, username: user.username, email: user.email },
+                    }));
+                }
+            } catch (err) {
+                console.error(`Error fetching user ${userId}:`, err);
+            }
+        },
+        [userCache]
+    );
+
     useEffect(() => {
         const fetchOrder = async () => {
             try {
@@ -83,63 +145,7 @@ export default function OrderDetailsPage() {
         if (params.id) {
             fetchOrder();
         }
-    }, [params.id]);
-
-    const fetchProduct = async (productId: number) => {
-        if (productCache[productId]) return;
-
-        try {
-            const token = document.cookie
-                .split('; ')
-                .find((row) => row.startsWith('token='))
-                ?.split('=')[1];
-
-            const response = await fetch(`${BASE_URL}/products/${productId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (!response.ok) throw new Error('Failed to fetch product');
-            const data = await response.json();
-
-            if (data.success) {
-                const product = data.data;
-                setProductCache((prev) => ({
-                    ...prev,
-                    [productId]: { id: product.id, name: product.name, price: product.price },
-                }));
-            }
-        } catch (err) {
-            console.error(`Error fetching product ${productId}:`, err);
-        }
-    };
-
-    const fetchUser = async (userId: number) => {
-        if (userCache[userId]) return;
-
-        try {
-            const token = document.cookie
-                .split('; ')
-                .find((row) => row.startsWith('token='))
-                ?.split('=')[1];
-
-            const response = await fetch(`${BASE_URL}/users/${userId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (!response.ok) throw new Error('Failed to fetch user');
-            const data = await response.json();
-
-            if (data.success) {
-                const user = data.data;
-                setUserCache((prev) => ({
-                    ...prev,
-                    [userId]: { id: user.id, username: user.username, email: user.email },
-                }));
-            }
-        } catch (err) {
-            console.error(`Error fetching user ${userId}:`, err);
-        }
-    };
+    }, [params.id, fetchProduct, fetchUser]);
 
     const getStatusColor = (status: Order['status']) => {
         switch (status) {
@@ -222,7 +228,6 @@ export default function OrderDetailsPage() {
                     </div>
                 </div>
             </div>
-
 
             {/* Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -71,14 +71,7 @@ export default function CategoriesPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('token='))
-          ?.split('=')[1];
-
-        // if (!token) throw new Error('Authentication token not found');
-
-        const response = await fetch(`${BASE_URL}/categories/all`, {
+               const response = await fetch(`${BASE_URL}/categories/all`, {
           headers: {
             // 'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'

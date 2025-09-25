@@ -7,7 +7,6 @@ import { Fascinate } from 'next/font/google';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
-import Footer from '@/components/ui/Footer';
 import { BASE_URL } from '@/config/api';
 
 

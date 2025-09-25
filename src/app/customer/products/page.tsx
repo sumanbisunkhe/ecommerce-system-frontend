@@ -56,19 +56,6 @@ interface RecommendedProduct extends Product {
   recommendationScore: number;
 }
 
-// Add new interface for cart response
-interface CartResponse {
-  id: number;
-  userId: number;
-  items: Array<{
-    productId: number;
-    productName: string;
-    quantity: number;
-    totalPrice: number;
-  }>;
-  totalItems: number;
-  totalPrice: number;
-}
 
 interface Category {
   id: number;
@@ -105,87 +92,6 @@ export default function ProductsPage() {
       setFilters(prev => ({ ...prev, categoryId: Number(categoryParam) }));
     }
   }, [categoryParam]);
-
-  const fetchProducts = async () => {
-    setIsLoading(true);
-    try {
-      const queryParams = new URLSearchParams();
-      
-      // Only add search param if it exists and is not empty
-      // if (searchTerm?.trim()) {
-      //   queryParams.append('search', searchTerm.trim());
-      // }
-      queryParams.append('search', searchTerm?.trim() || '');
-      
-      // Use 1-based page number (backend expects this and converts to 0-based internally)
-      const pageNumber = Math.max(1, pageInfo.number);
-      queryParams.append('page', pageNumber.toString());
-      queryParams.append('size', pageInfo.size.toString());
-      
-      // Add sorting params
-      queryParams.append('sortBy', sortBy);
-      queryParams.append('ascending', (sortOrder === 'asc').toString());
-      
-      // Always include active status
-      queryParams.append('active', 'true');
-
-      // Add numeric filters only if they are valid numbers
-      if (filters.minPrice != null && !isNaN(filters.minPrice)) {
-        queryParams.append('minPrice', filters.minPrice.toString());
-      }
-      if (filters.maxPrice != null && !isNaN(filters.maxPrice)) {
-        queryParams.append('maxPrice', filters.maxPrice.toString());
-      }
-      if (filters.minStock != null && !isNaN(filters.minStock)) {
-        queryParams.append('minStock', filters.minStock.toString());
-      }
-      if (filters.maxStock != null && !isNaN(filters.maxStock)) {
-        queryParams.append('maxStock', filters.maxStock.toString());
-      }
-      if (filters.categoryId != null && !isNaN(filters.categoryId)) {
-        queryParams.append('categoryId', filters.categoryId.toString());
-      }
-
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-      const response = await fetch(
-        `${BASE_URL}/products/all?${queryParams}`,
-        { 
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch products');
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        setProducts(data.data.content);
-        setPageInfo(prev => ({
-          ...prev,
-          number: pageNumber, // Keep the 1-based page number
-          totalElements: data.data.page.totalElements,
-          totalPages: data.data.page.totalPages,
-        }));
-      } else {
-        throw new Error(data.message || 'Failed to fetch products');
-      }
-    } catch (error: any) {
-      notify.error(error.message || 'Failed to load products');
-      setProducts([]);
-      setPageInfo(prev => ({
-        ...prev,
-        totalElements: 0,
-        totalPages: 0,
-      }));
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -269,7 +175,7 @@ export default function ProductsPage() {
           setPopularProducts(data.data.popularProducts || []);
           setNewProducts(data.data.newProducts || []);
         }
-      } catch (error) {
+      } catch {
         setPopularProducts([]);
         setNewProducts([]);
       }
@@ -286,7 +192,80 @@ export default function ProductsPage() {
 
   // Fetch products when any relevant parameter changes
   useEffect(() => {
-    fetchProducts();
+    const fetchProductsData = async () => {
+      setIsLoading(true);
+      try {
+        const queryParams = new URLSearchParams();
+        
+        queryParams.append('search', searchTerm?.trim() || '');
+        
+        const pageNumber = Math.max(1, pageInfo.number);
+        queryParams.append('page', pageNumber.toString());
+        queryParams.append('size', pageInfo.size.toString());
+        
+        queryParams.append('sortBy', sortBy);
+        queryParams.append('ascending', (sortOrder === 'asc').toString());
+        
+        queryParams.append('active', 'true');
+
+        if (filters.minPrice != null && !isNaN(filters.minPrice)) {
+          queryParams.append('minPrice', filters.minPrice.toString());
+        }
+        if (filters.maxPrice != null && !isNaN(filters.maxPrice)) {
+          queryParams.append('maxPrice', filters.maxPrice.toString());
+        }
+        if (filters.minStock != null && !isNaN(filters.minStock)) {
+          queryParams.append('minStock', filters.minStock.toString());
+        }
+        if (filters.maxStock != null && !isNaN(filters.maxStock)) {
+          queryParams.append('maxStock', filters.maxStock.toString());
+        }
+        if (filters.categoryId != null && !isNaN(filters.categoryId)) {
+          queryParams.append('categoryId', filters.categoryId.toString());
+        }
+
+        const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+        const response = await fetch(
+          `${BASE_URL}/products/all?${queryParams}`,
+          { 
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch products');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setProducts(data.data.content);
+          setPageInfo(prev => ({
+            ...prev,
+            number: pageNumber,
+            totalElements: data.data.page.totalElements,
+            totalPages: data.data.page.totalPages,
+          }));
+        } else {
+          throw new Error(data.message || 'Failed to fetch products');
+        }
+      } catch (error: any) {
+        notify.error(error.message || 'Failed to load products');
+        setProducts([]);
+        setPageInfo(prev => ({
+          ...prev,
+          totalElements: 0,
+          totalPages: 0,
+        }));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProductsData();
   }, [pageInfo.number, pageInfo.size, sortBy, sortOrder, searchTerm, filters]);
 
   const handleFilterChange = (filterUpdate: Partial<Filters>) => {

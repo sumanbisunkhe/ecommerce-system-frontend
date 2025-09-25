@@ -1,24 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
-import { Funnel_Sans } from "next/font/google";
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import { BASE_URL } from '@/config/api';
 
-const funnelSans = Funnel_Sans({
-    subsets: ["latin"],
-    weight: ["400", "600", "700"],
-});
+
 
 export default function KhaltiCallback() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const [isProcessing, setIsProcessing] = useState(true);
-    const [isSuccess, setIsSuccess] = useState(false);
 
     useEffect(() => {
         const verifyPayment = async () => {
@@ -71,7 +64,6 @@ export default function KhaltiCallback() {
 
                 const data = await callbackResponse.json();
                 if (data.success) {
-                    setIsSuccess(true);
                     notify.success('Payment successful!');
                     setTimeout(() => {
                         router.replace(`/customer/orders/${orderId}`);
@@ -82,8 +74,6 @@ export default function KhaltiCallback() {
             } catch (error: any) {
                 notify.error(error.message);
                 setTimeout(() => router.push('/customer/orders'), 2000);
-            } finally {
-                setIsProcessing(false);
             }
         };
 
@@ -94,8 +84,9 @@ export default function KhaltiCallback() {
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-gray-50 p-4">
             <NotificationProvider />
             <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full">
-                {/* ... same UI components as before ... */}
+                {/* ...existing code... */}
             </div>
         </div>
     );
 }
+     

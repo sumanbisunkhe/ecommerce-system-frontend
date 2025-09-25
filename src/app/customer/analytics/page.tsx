@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChartLine, ChevronLeft, Package2, CreditCard, TrendingUp, Award, ShoppingBag, Wallet } from 'lucide-react';
+import { ChevronLeft, Package2} from 'lucide-react';
 import { Line, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -15,15 +15,13 @@ import {
   Legend,
   ArcElement,
 } from 'chart.js';
-import { BsTrophyFill } from 'react-icons/bs';
 import Link from 'next/link';
 import { Funnel_Sans, Markazi_Text } from 'next/font/google';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
-import { FiTrendingUp, FiBarChart2, FiClock, FiDollarSign, FiShoppingBag, FiCreditCard } from 'react-icons/fi';
+import { FiTrendingUp, FiBarChart2, FiClock, FiDollarSign, FiShoppingBag } from 'react-icons/fi';
 import { RiVipCrownFill } from 'react-icons/ri';
-import Footer from '@/components/ui/Footer';
 import { BASE_URL } from '@/config/api';
 
 const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
@@ -186,27 +184,6 @@ const StatCard = ({ icon: Icon, label, value, subValue, className = '' }: {
       </div>
     </div>
     <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-500 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-  </motion.div>
-);
-
-// Enhanced Card Component
-const Card = ({ children, className = '', title }: {
-  children: React.ReactNode;
-  className?: string;
-  title?: string;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
-    className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden ${className}`}
-  >
-    {title && (
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      </div>
-    )}
-    <div className="p-6">{children}</div>
   </motion.div>
 );
 

@@ -2,16 +2,19 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import Header from '../header';
 import Footer from '@/components/ui/Footer';
 
-export default function FAQPage() {
-  const [openItems, setOpenItems] = useState({});
-  const searchRef = useRef(null);
-  const sectionRefs = useRef([]);
+function FAQContent() {
+  const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
+  const searchRef = useRef<HTMLInputElement | null>(null);
+  const sectionRefs = useRef<Array<HTMLElement>>([]);
 
   useEffect(() => {
+    // Copy the current ref value to avoid stale closure
+    const currentSectionRefs = sectionRefs.current;
+    
     // Intersection Observer for scroll animations
     const observer = new IntersectionObserver(
       (entries) => {
@@ -24,19 +27,22 @@ export default function FAQPage() {
       { threshold: 0.1 }
     );
 
-    sectionRefs.current.forEach((ref) => {
+    currentSectionRefs.forEach((ref) => {
       if (ref) observer.observe(ref);
     });
 
     return () => {
-      sectionRefs.current.forEach((ref) => {
+      currentSectionRefs.forEach((ref) => {
         if (ref) observer.unobserve(ref);
       });
     };
   }, []);
 
-  const toggleItem = (index) => {
-    setOpenItems(prev => ({
+
+  type OpenItemsState = Record<string, boolean>;
+
+  const toggleItem = (index: string) => {
+    setOpenItems((prev: OpenItemsState) => ({
       ...prev,
       [index]: !prev[index]
     }));
@@ -208,7 +214,9 @@ export default function FAQPage() {
   ];
 
   // Add ref to each section for animation
-  const addToRefs = (el) => {
+  type AddToRefs = (el: HTMLElement | null) => void;
+
+  const addToRefs: AddToRefs = (el) => {
     if (el && !sectionRefs.current.includes(el)) {
       sectionRefs.current.push(el);
     }
@@ -302,7 +310,7 @@ export default function FAQPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {faqCategories.map((category, index) => (
+              {faqCategories.map((category) => (
                 <Link
                   key={category.id}
                   href={`#${category.id}`}
@@ -401,5 +409,24 @@ export default function FAQPage() {
       {/* Footer */}
       <Footer/>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+        <p className="mt-2 text-gray-600">Loading FAQ...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function FAQPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <FAQContent />
+    </Suspense>
   );
 }

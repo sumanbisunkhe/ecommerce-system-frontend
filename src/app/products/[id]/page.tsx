@@ -46,21 +46,13 @@ export default function ProductDetailsPage() {
     const [product, setProduct] = useState<Product | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
-    const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
     const [category, setCategory] = useState<Category | null>(null);
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const token = document.cookie
-                    .split('; ')
-                    .find((row) => row.startsWith('token='))
-                    ?.split('=')[1];
-
-                const response = await fetch(`${BASE_URL}/products/${params.id}`, {
-                    // headers: { Authorization: `Bearer ${token}` },
-                });
+                const response = await fetch(`${BASE_URL}/products/${params.id}`);
 
                 if (!response.ok) throw new Error('Failed to fetch product');
                 const data = await response.json();
@@ -69,10 +61,7 @@ export default function ProductDetailsPage() {
                     setProduct(data.data);
                     // Fetch category details
                     const categoryResponse = await fetch(
-                        `${BASE_URL}/categories/${data.data.categoryId}`,
-                        {
-                            // headers: { Authorization: `Bearer ${token}` },
-                        }
+                        `${BASE_URL}/categories/${data.data.categoryId}`
                     );
 
                     if (categoryResponse.ok) {
@@ -251,23 +240,14 @@ export default function ProductDetailsPage() {
 
                                             <button
                                                 onClick={addToCart}
-                                                disabled={isAddingToCart || product.stockQuantity === 0}
+                                                disabled={product.stockQuantity === 0}
                                                 className="flex-1 h-[42px] px-4 bg-blue-600 text-white rounded-md font-medium
                                                     hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed
                                                     flex items-center justify-center gap-1.5 transition-colors text-sm
                                                     min-w-[200px] self-end"
                                             >
-                                                {isAddingToCart ? (
-                                                    <>
-                                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                                        Adding...
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <ShoppingCart className="h-4 w-4" />
-                                                        Add to Cart
-                                                    </>
-                                                )}
+                                                <ShoppingCart className="h-4 w-4" />
+                                                Add to Cart
                                             </button>
                                         </div>
                                     </div>

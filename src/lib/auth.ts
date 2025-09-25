@@ -17,7 +17,7 @@ export function getAuthUser() {
   if (userCookie) {
     try {
       return JSON.parse(decodeURIComponent(userCookie));
-    } catch (error) {
+    } catch {
       return null;
     }
   }

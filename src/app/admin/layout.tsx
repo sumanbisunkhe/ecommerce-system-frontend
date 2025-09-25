@@ -1,15 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from '@/components/dashboard/admin/sidebar-nav';
 import AdminHeader from '@/components/dashboard/admin/header';
 import NotificationProvider from '@/components/ui/Notification';
 
-interface AdminLayoutProps {
-  children: ReactNode;
-}
 
 export default function AdminLayout({
   children,
@@ -19,7 +16,6 @@ export default function AdminLayout({
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(256); // Default expanded width
 
   useEffect(() => {
@@ -50,7 +46,6 @@ export default function AdminLayout({
   }, [router]);
 
   const handleSidebarCollapse = (collapsed: boolean) => {
-    setIsSidebarCollapsed(collapsed);
     setSidebarWidth(collapsed ? 70 : 256);
   };
 
@@ -67,14 +62,12 @@ export default function AdminLayout({
       {/* Header */}
       <AdminHeader
         user={user}
-        isSidebarCollapsed={isSidebarCollapsed}
         sidebarWidth={sidebarWidth}
       />
 
       <div className="flex flex-1 transition-all duration-300">
         {/* Sidebar */}
         <AdminSidebar
-          user={user}
           onCollapse={handleSidebarCollapse}
         />
 

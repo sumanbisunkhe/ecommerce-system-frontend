@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { FaPlus } from 'react-icons/fa';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
     View,
     SquarePen,
@@ -117,13 +116,20 @@ export default function ProductsPage() {
     }, []);
 
     // Debounced search
-    const debouncedSearch = useCallback(
-        debounce((value: string) => {
+    const debouncedSearch = useMemo(
+        () => debounce((value: string) => {
             setSearchTerm(value);
             setPageInfo(prev => ({ ...prev, number: 1 }));
         }, 500),
         []
     );
+
+    // Cleanup debounced function on unmount
+    useEffect(() => {
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
 
     // Fetch products
     const fetchProducts = useCallback(async () => {
@@ -176,7 +182,7 @@ export default function ProductsPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [searchTerm, pageInfo.number, pageInfo.size, sortBy, sortOrder, selectedCategory, activeFilter]);
+    }, [searchTerm, pageInfo.number, pageInfo.size, sortBy, sortOrder, selectedCategory, activeFilter, categoryCache, fetchCategoryById]);
 
     useEffect(() => {
         fetchProducts();
@@ -355,7 +361,7 @@ export default function ProductsPage() {
                                     <div className="flex items-center gap-2">
                                         <span className="text-gray-500">Filtered by:</span>
                                         <span className="px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-xs font-medium">
-                                            "{searchTerm}"
+                                            &ldquo;{searchTerm}&rdquo;
                                         </span>
                                     </div>
                                 )}

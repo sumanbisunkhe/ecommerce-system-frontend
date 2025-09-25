@@ -149,7 +149,7 @@ export default function TrendsPage() {
             }
           }
         }
-      } catch (error: any) {
+      } catch {
         notify.error('Failed to fetch trending products');
       } finally {
         setIsLoading(false);

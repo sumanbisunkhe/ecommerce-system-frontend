@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
-    Package2, Loader2, ChevronLeft, Clock, CheckCircle2, XCircle, AlertCircle, Banknote
+    Package2, Loader2, ChevronLeft, Clock, CheckCircle2, XCircle, AlertCircle
 } from 'lucide-react';
 import { Funnel_Sans } from "next/font/google";
 import Image from 'next/image';
@@ -45,12 +45,17 @@ interface Order {
     subtotal: number;
 }
 
-interface PaymentResponse {
-  pidx: string;
-  payment_url: string;
-  expires_at: string;
-  purchase_order_id: string | null;
-  purchase_order_name: string | null;
+interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    stockQuantity: number;
+    active: boolean;
+    imageUrl: string;
+    categoryId: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface RecommendedProduct extends Product {
@@ -253,12 +258,10 @@ export default function OrderDetailsPage() {
     }
 };
 
-    const handlePaymentComplete = (success: boolean) => {
+    const handlePaymentComplete = () => {
         setShowPaymentModal(false);
-        if (success) {
-            // Refresh the order details
-            window.location.reload();
-        }
+        // Refresh the order details
+        window.location.reload();
     };
 
     const isPaymentCompleted = order?.paymentStatus === 'COMPLETED';
@@ -395,12 +398,13 @@ export default function OrderDetailsPage() {
                                         className="form-radio text-blue-600 focus:ring-blue-500 h-4 w-4"
                                     />
                                     <span className="flex items-center gap-2">
-                                        <img
+                                        <Image
                                             src="https://res.cloudinary.com/dxql0x0iq/image/upload/v1757784401/khalti_yv4jqo.png"
                                             alt="Khalti"
+                                            width={24}
+                                            height={24}
                                             className="h-6"
                                         />
-
                                     </span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer">
@@ -413,9 +417,11 @@ export default function OrderDetailsPage() {
                                         className="form-radio text-blue-600 focus:ring-blue-500 h-4 w-4"
                                     />
                                     <span className="flex items-center gap-2">
-                                         <img
+                                         <Image
                                             src="https://res.cloudinary.com/dxql0x0iq/image/upload/c_crop,w_1572,h_652/v1757784762/money_a5sbxj.jpg"
-                                            alt="Khalti"
+                                            alt="Cash on Delivery"
+                                            width={32}
+                                            height={32}
                                             className="h-8"
                                         />
                                     </span>

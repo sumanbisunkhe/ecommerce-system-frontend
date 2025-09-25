@@ -4,7 +4,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Bell, ChevronDown, Settings, LogOut, Eye, ShieldCheck, Camera, KeyRound, ChevronRight } from 'lucide-react';
+import { ChevronDown, Settings, LogOut, Eye, ShieldCheck, Camera, KeyRound, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 // Google Fonts
 import { Markazi_Text } from 'next/font/google';
@@ -18,11 +19,10 @@ const funnelSans = Funnel_Sans({
 
 interface AdminHeaderProps {
   user: any;
-  isSidebarCollapsed?: boolean;
   sidebarWidth?: number;
 }
 
-export default function AdminHeader({ user: initialUser, isSidebarCollapsed = false, sidebarWidth = 256 }: AdminHeaderProps) {
+export default function AdminHeader({ user: initialUser, sidebarWidth = 256 }: AdminHeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showSettingsSubmenu, setShowSettingsSubmenu] = useState(false);
   const [user, setUser] = useState(initialUser);
@@ -100,9 +100,11 @@ export default function AdminHeader({ user: initialUser, isSidebarCollapsed = fa
           >
             <div className="relative">
               {user?.profilePictureUrl ? (
-                <img
+                <Image
                   src={user.profilePictureUrl}
                   alt="Profile"
+                  width={40}
+                  height={40}
                   className="h-10 w-10 rounded-full object-cover"
                   key={user.profilePictureUrl}
                 />

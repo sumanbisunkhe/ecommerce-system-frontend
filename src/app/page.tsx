@@ -3,29 +3,14 @@
 
 import Link from 'next/link';
 import Header from './header';
-import { useState, useEffect } from 'react';
-
-import { Funnel_Sans, Fascinate } from "next/font/google"; 
+import { useState, useEffect, Suspense } from 'react';
 import Footer from '@/components/ui/Footer';
 
-const funnelSans = Funnel_Sans({ subsets: ["latin"], weight: ["400", "600", "700"] });
-const fascinate = Fascinate({
-  subsets: ["latin"],
-  weight: "400",
-})
-
-export default function Page() {
-  const [currentFeature, setCurrentFeature] = useState(0);
+function HomeContent() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
-
-    const featureInterval = setInterval(() => {
-      setCurrentFeature((prev) => (prev + 1) % 3);
-    }, 5000);
-
-    return () => clearInterval(featureInterval);
   }, []);
 
   const features = [
@@ -218,5 +203,24 @@ export default function Page() {
 
     <Footer/>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+        <p className="mt-2 text-gray-600">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <HomeContent />
+    </Suspense>
   );
 }

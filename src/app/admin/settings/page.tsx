@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import AdminHeader from '@/components/dashboard/admin/header';
 import { Funnel_Sans } from 'next/font/google';
 import { notify } from '@/components/ui/Notification';
@@ -67,13 +67,12 @@ const ImageCropper = ({
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   // Initialize image dimensions when loaded
   useEffect(() => {
     if (!imageRef.current) return;
 
-    const img = new Image();
+    const img = new window.Image();
     img.onload = () => {
       setImageDimensions({
         width: img.width,
@@ -84,44 +83,50 @@ const ImageCropper = ({
   }, [image]);
 
   // Draw cropped image on canvas
-  const drawCroppedImage = () => {
-    if (!canvasRef.current || !imageRef.current) return;
+  useEffect(() => {
+    const drawCroppedImage = () => {
+      if (!canvasRef.current || !imageRef.current) return;
 
-    const ctx = canvasRef.current.getContext('2d');
-    if (!ctx) return;
+      const ctx = canvasRef.current.getContext('2d');
+      if (!ctx) return;
 
-    // Set canvas size for the final cropped image (square)
-    const size = 300;
-    canvasRef.current.width = size;
-    canvasRef.current.height = size;
+      // Set canvas size for the final cropped image (square)
+      const size = 300;
+      canvasRef.current.width = size;
+      canvasRef.current.height = size;
 
-    // Create circular clipping path
-    ctx.beginPath();
-    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
+      // Create circular clipping path
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
 
-    // Calculate scale to fit image within the crop area
-    const scale = Math.max(
-      size / imageDimensions.width,
-      size / imageDimensions.height
-    ) * zoom;
+      // Calculate scale to fit image within the crop area
+      const scale = Math.max(
+        size / imageDimensions.width,
+        size / imageDimensions.height
+      ) * zoom;
 
-    // Calculate centered position
-    const translateX = (size / 2) + crop.x;
-    const translateY = (size / 2) + crop.y;
+      // Calculate centered position
+      const translateX = (size / 2) + crop.x;
+      const translateY = (size / 2) + crop.y;
 
-    // Apply transformations
-    ctx.save();
-    ctx.translate(translateX, translateY);
-    ctx.rotate((rotation * Math.PI) / 180);
-    ctx.scale(scale, scale);
-    ctx.translate(-imageDimensions.width / 2, -imageDimensions.height / 2);
+      // Apply transformations
+      ctx.save();
+      ctx.translate(translateX, translateY);
+      ctx.rotate((rotation * Math.PI) / 180);
+      ctx.scale(scale, scale);
+      ctx.translate(-imageDimensions.width / 2, -imageDimensions.height / 2);
 
-    // Draw the image
-    ctx.drawImage(imageRef.current, 0, 0);
-    ctx.restore();
-  };
+      // Draw the image
+      ctx.drawImage(imageRef.current, 0, 0);
+      ctx.restore();
+    };
+
+    if (canvasRef.current && imageDimensions.width > 0) {
+      drawCroppedImage();
+    }
+  }, [crop, zoom, rotation, imageDimensions]);
 
   const handleCrop = () => {
     if (!canvasRef.current || !imageRef.current) return;
@@ -160,13 +165,6 @@ const ImageCropper = ({
     const croppedImage = tempCanvas.toDataURL('image/jpeg', 0.9);
     onCrop(croppedImage);
   };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas && croppedAreaPixels) {
-      drawCroppedImage();
-    }
-  }, [croppedAreaPixels, drawCroppedImage]);
 
   // Handle drag to move image
   const [isDragging, setIsDragging] = useState(false);
@@ -245,16 +243,18 @@ const ImageCropper = ({
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
-              onWheel={handleWheel} // Add wheel event handler
+              onWheel={handleWheel}
             >
               <div
                 className="relative overflow-hidden w-full h-full"
                 style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
               >
-                <img
+                <Image
                   ref={imageRef}
                   src={image}
                   alt="Crop preview"
+                  width={400}
+                  height={400}
                   className="absolute top-0 left-0 pointer-events-none"
                   style={{
                     transform: `translate(${crop.x}px, ${crop.y}px) scale(${zoom}) rotate(${rotation}deg)`,
@@ -332,8 +332,6 @@ export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [profilePictureLoading, setProfilePictureLoading] = useState(false);
-  const [cropperOpen, setCropperOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>(
     searchParams.get('tab') === 'security' ? 'security' : 'profile'
   );
@@ -343,6 +341,7 @@ export default function SettingsPage() {
     new: false,
     confirm: false,
   });
+  const [cropImage, setCropImage] = useState<string | null>(null);
 
   useEffect(() => {
     // Get user from cookie
@@ -381,8 +380,8 @@ export default function SettingsPage() {
     const reader = new FileReader();
 
     reader.onload = (event) => {
-      setSelectedImage(event.target?.result as string);
-      setCropperOpen(true);
+      const imageData = event.target?.result as string;
+      setCropImage(imageData);
     };
 
     reader.readAsDataURL(file);
@@ -392,7 +391,6 @@ export default function SettingsPage() {
     if (!user) return;
 
     setProfilePictureLoading(true);
-    setCropperOpen(false);
 
     const loadingToast = notify.loading('Uploading profile picture...');
 
@@ -442,7 +440,6 @@ export default function SettingsPage() {
       notify.error('Failed to upload profile picture');
     } finally {
       setProfilePictureLoading(false);
-      setSelectedImage(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -519,6 +516,19 @@ export default function SettingsPage() {
     <div className={`bg-gray-50 px-6  mt-6 rounded-lg ${funnelSans.className}`}>
       <NotificationProvider />
       <AdminHeader user={user} />
+
+      {cropImage && (
+        <ImageCropper
+          image={cropImage}
+          onCrop={handleProfilePictureSave}
+          onCancel={() => {
+            setCropImage(null);
+            if (fileInputRef.current) {
+              fileInputRef.current.value = '';
+            }
+          }}
+        />
+      )}
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex gap-1 mb-6 p-1 bg-gray-100 rounded-xl w-fit">

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Funnel_Sans } from "next/font/google";
@@ -15,7 +15,7 @@ const funnelSans = Funnel_Sans({
     weight: ["400", "600", "700"],
 });
 
-export default function PaymentCallback() {
+function KhaltiCallbackContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [isProcessing, setIsProcessing] = useState(true);
@@ -117,4 +117,16 @@ export default function PaymentCallback() {
             </div>
         </div>
     );
+}
+
+function LoadingFallback() {
+    return <div>Loading payment details...</div>
+}
+
+export default function KhaltiCallbackPage() {
+    return (
+        <Suspense fallback={<LoadingFallback />}>
+            <KhaltiCallbackContent />
+        </Suspense>
+    )
 }

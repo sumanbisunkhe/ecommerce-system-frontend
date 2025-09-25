@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client'; 
-import React, { useState, useEffect, useCallback } from 'react'; 
+import React, { useState, useEffect, useCallback, useMemo } from 'react'; 
 import { View, SquarePen, Trash2, Search, ArrowUp, ArrowDown, Settings2, Filter, LayoutGrid ,CopyPlus} from 'lucide-react'; 
 import Link from 'next/link'; 
 import debounce from 'lodash/debounce'; 
@@ -46,13 +46,20 @@ export default function CategoriesPage() {
   const [sortOrder, setSortOrder] = useState('desc'); 
 
   // Debounced search 
-  const debouncedSearch = useCallback( 
-    debounce((value: string) => { 
-      setSearchTerm(value); 
-      setPageInfo(prev => ({ ...prev, number: 1 })); 
-    }, 500), 
-    [] 
-  ); 
+  const debouncedSearch = useMemo(
+    () => debounce((value: string) => {
+      setSearchTerm(value);
+      setPageInfo(prev => ({ ...prev, number: 1 }));
+    }, 500),
+    []
+  );
+
+  // Cleanup debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   // Fetch categories 
   const fetchCategories = useCallback(async () => { 

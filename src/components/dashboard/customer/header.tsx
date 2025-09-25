@@ -6,10 +6,11 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { 
   ShoppingCart, Package2, LayoutGrid, ChartColumnStacked, 
   Star, ChartLine, CreditCard, LogOut, Settings, 
-  ChevronDown, Eye, Search, X, Menu, Bell, Heart
+  ChevronDown, Eye, Search, X, Menu
 } from 'lucide-react';
 import { Funnel_Sans, Fascinate } from "next/font/google";
 import debounce from 'lodash/debounce';
+import Image from 'next/image';
 
 const funnelSans = Funnel_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 const fascinate = Fascinate({ subsets: ["latin"], weight: "400" });
@@ -53,7 +54,7 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
     setSearchQuery(urlSearchQuery);
   }, [searchParams]);
 
-  // Debounced search function
+  // Fix the debounced search function with proper dependencies
   const debouncedSearch = useCallback(
     debounce((query: string) => {
       if (pathname.startsWith('/customer/products')) {
@@ -128,7 +129,9 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
   };
 
   const getInitials = (user: User | null) => {
-    return user?.firstName?.[0] + user?.lastName?.[0] || 'U';
+    const firstInitial = user?.firstName?.[0] || '';
+    const lastInitial = user?.lastName?.[0] || '';
+    return (firstInitial + lastInitial) || 'U';
   };
 
   const isActivePath = (href: string) => pathname.startsWith(href);
@@ -271,9 +274,11 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
                   >
                     <div className="relative">
                       {user?.profilePictureUrl ? (
-                        <img
+                        <Image
                           src={user.profilePictureUrl}
                           alt="Profile"
+                          width={40}
+                          height={40}
                           className="h-10 w-10 rounded-xl object-cover border-2 border-gray-200 group-hover:border-blue-400 transition-all duration-200 shadow-md"
                         />
                       ) : (

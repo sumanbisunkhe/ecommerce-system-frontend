@@ -3,9 +3,9 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Package2, ArrowUpDown, Filter, Loader2, X, Import } from 'lucide-react';
+import { Package2, ArrowUpDown, Filter, Loader2, X } from 'lucide-react';
 import Image from 'next/image';
 import { Funnel_Sans } from "next/font/google";
 import { notify } from '@/components/ui/Notification';
@@ -43,34 +43,6 @@ interface Filters {
   maxStock?: number;
 }
 
-interface Recommendation {
-  id: number;
-  productId: number;
-  productName: string;
-  type: string;
-  userId: number;
-  score: number;
-}
-
-interface RecommendedProduct extends Product {
-  recommendationType: string;
-  recommendationScore: number;
-}
-
-// Add new interface for cart response
-interface CartResponse {
-  id: number;
-  userId: number;
-  items: Array<{
-    productId: number;
-    productName: string;
-    quantity: number;
-    totalPrice: number;
-  }>;
-  totalItems: number;
-  totalPrice: number;
-}
-
 interface Category {
   id: number;
   name: string;
@@ -79,7 +51,7 @@ interface Category {
   updatedAt: string;
 }
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get('search') || '';
   const categoryParam = searchParams.get('category');
@@ -87,7 +59,7 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [pageInfo, setPageInfo] = useState<PageInfo>({
     size: 9,
-    number: 1,  // 1-based for both frontend and backend
+    number: 1,
     totalElements: 0,
     totalPages: 0,
   });
@@ -95,7 +67,6 @@ export default function ProductsPage() {
   const [sortOrder, setSortOrder] = useState('desc');
   const [filters, setFilters] = useState<Filters>({});
   const [showFilters, setShowFilters] = useState(false);
-  const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProduct[]>([]);
   const [popularProducts, setPopularProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -107,97 +78,13 @@ export default function ProductsPage() {
     }
   }, [categoryParam]);
 
-  const fetchProducts = async () => {
-    setIsLoading(true);
-    try {
-      const queryParams = new URLSearchParams();
-
-      // Only add search param if it exists and is not empty
-      // if (searchTerm?.trim()) {
-      //   queryParams.append('search', searchTerm.trim());
-      // }
-      queryParams.append('search', searchTerm?.trim() || '');
-
-      // Use 1-based page number (backend expects this and converts to 0-based internally)
-      const pageNumber = Math.max(1, pageInfo.number);
-      queryParams.append('page', pageNumber.toString());
-      queryParams.append('size', pageInfo.size.toString());
-
-      // Add sorting params
-      queryParams.append('sortBy', sortBy);
-      queryParams.append('ascending', (sortOrder === 'asc').toString());
-
-      // Always include active status
-      queryParams.append('active', 'true');
-
-      // Add numeric filters only if they are valid numbers
-      if (filters.minPrice != null && !isNaN(filters.minPrice)) {
-        queryParams.append('minPrice', filters.minPrice.toString());
-      }
-      if (filters.maxPrice != null && !isNaN(filters.maxPrice)) {
-        queryParams.append('maxPrice', filters.maxPrice.toString());
-      }
-      if (filters.minStock != null && !isNaN(filters.minStock)) {
-        queryParams.append('minStock', filters.minStock.toString());
-      }
-      if (filters.maxStock != null && !isNaN(filters.maxStock)) {
-        queryParams.append('maxStock', filters.maxStock.toString());
-      }
-      if (filters.categoryId != null && !isNaN(filters.categoryId)) {
-        queryParams.append('categoryId', filters.categoryId.toString());
-      }
-
-      const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-      const response = await fetch(
-        `${BASE_URL}/products/all?${queryParams}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch products');
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        setProducts(data.data.content);
-        setPageInfo(prev => ({
-          ...prev,
-          number: pageNumber, // Keep the 1-based page number
-          totalElements: data.data.page.totalElements,
-          totalPages: data.data.page.totalPages,
-        }));
-      } else {
-        throw new Error(data.message || 'Failed to fetch products');
-      }
-    } catch (error: any) {
-      notify.error(error.message || 'Failed to load products');
-      setProducts([]);
-      setPageInfo(prev => ({
-        ...prev,
-        totalElements: 0,
-        totalPages: 0,
-      }));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-
     const fetchAnalytics = async () => {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
         const response = await fetch(
           `${BASE_URL}/analytics/products-analytics`,
           {
             headers: {
-              // 'Authorization': `Bearer ${token}`,
               'Accept': 'application/json'
             }
           }
@@ -208,7 +95,7 @@ export default function ProductsPage() {
           setPopularProducts(data.data.popularProducts || []);
           setNewProducts(data.data.newProducts || []);
         }
-      } catch (error) {
+      } catch {
         setPopularProducts([]);
         setNewProducts([]);
       }
@@ -223,6 +110,79 @@ export default function ProductsPage() {
 
   // Fetch products when any relevant parameter changes
   useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const queryParams = new URLSearchParams();
+
+        queryParams.append('search', searchTerm?.trim() || '');
+
+        const pageNumber = Math.max(1, pageInfo.number);
+        queryParams.append('page', pageNumber.toString());
+        queryParams.append('size', pageInfo.size.toString());
+
+        queryParams.append('sortBy', sortBy);
+        queryParams.append('ascending', (sortOrder === 'asc').toString());
+
+        queryParams.append('active', 'true');
+
+        if (filters.minPrice != null && !isNaN(filters.minPrice)) {
+          queryParams.append('minPrice', filters.minPrice.toString());
+        }
+        if (filters.maxPrice != null && !isNaN(filters.maxPrice)) {
+          queryParams.append('maxPrice', filters.maxPrice.toString());
+        }
+        if (filters.minStock != null && !isNaN(filters.minStock)) {
+          queryParams.append('minStock', filters.minStock.toString());
+        }
+        if (filters.maxStock != null && !isNaN(filters.maxStock)) {
+          queryParams.append('maxStock', filters.maxStock.toString());
+        }
+        if (filters.categoryId != null && !isNaN(filters.categoryId)) {
+          queryParams.append('categoryId', filters.categoryId.toString());
+        }
+
+        const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+        const response = await fetch(
+          `${BASE_URL}/products/all?${queryParams}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch products');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          setProducts(data.data.content);
+          setPageInfo(prev => ({
+            ...prev,
+            number: pageNumber,
+            totalElements: data.data.page.totalElements,
+            totalPages: data.data.page.totalPages,
+          }));
+        } else {
+          throw new Error(data.message || 'Failed to fetch products');
+        }
+      } catch (error: any) {
+        notify.error(error.message || 'Failed to load products');
+        setProducts([]);
+        setPageInfo(prev => ({
+          ...prev,
+          totalElements: 0,
+          totalPages: 0,
+        }));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchProducts();
   }, [pageInfo.number, pageInfo.size, sortBy, sortOrder, searchTerm, filters]);
 
@@ -243,14 +203,8 @@ export default function ProductsPage() {
   // Add fetchCategories function
   const fetchCategories = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('token='))
-        ?.split('=')[1];
-
       const response = await fetch(`${BASE_URL}/categories/all`, {
         headers: {
-          // 'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
         }
       });
@@ -621,29 +575,21 @@ function CompactProductCard({ product }: { product: Product }) {
   );
 }
 
-function RecommendationCard({ product }: { product: RecommendedProduct }) {
+function LoadingFallback() {
   return (
-    <div className="flex gap-3 items-center p-4 hover:bg-gray-50 transition-colors cursor-pointer">
-      <div className="w-16 h-16 relative flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
-        <Image
-          src={product.imageUrl || '/product-placeholder.png'}
-          alt={product.name}
-          fill
-          className="object-contain p-2 bg-gray-50"
-        />
-      </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-medium text-gray-900 truncate hover:text-blue-600 transition-colors">
-          {product.name}
-        </h3>
-        <p className="text-sm font-semibold text-blue-600">
-          रु{product.price.toLocaleString('en-IN')}
-        </p>
-        <p className="text-xs text-gray-500">
-          {product.recommendationType.toLowerCase().replace('_', ' ')} •
-          Score: {(product.recommendationScore * 100).toFixed(0)}%
-        </p>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-2 text-gray-600">Loading products...</p>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ProductsContent />
+    </Suspense>
   );
 }

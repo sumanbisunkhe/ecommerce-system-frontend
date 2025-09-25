@@ -2,13 +2,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { FiEdit2, FiTrash2, FiSearch, FiEye } from 'react-icons/fi';
-import { useAuth } from '@/hooks/useAuth';
 import { 
   User, 
-  Users, 
-  Shield, 
-  UserCheck,
   ArrowUp,
   ArrowDown,
   Search,
@@ -21,7 +16,6 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import debounce from 'lodash/debounce';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
@@ -72,13 +66,14 @@ export default function UsersPage() {
   const [sortOrder, setSortOrder] = useState('desc');
 
   // Debounced search
-  const debouncedSearch = useCallback(
-    debounce((value: string) => {
+  const debouncedSearch = useCallback((value: string) => {
+    const timeoutId = setTimeout(() => {
       setSearchTerm(value);
       setPageInfo(prev => ({ ...prev, number: 1 }));
-    }, 500),
-    []
-  );
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   // Fetch users
   const fetchUsers = useCallback(async () => {
@@ -183,15 +178,6 @@ export default function UsersPage() {
     } else {
       return <ArrowDown className="w-4 h-4" />;
     }
-  };
-
-  const getSortLabel = () => {
-    const sortLabels = {
-      updatedAt: 'Last Updated',
-      createdAt: 'Created Date', 
-      firstName: 'Name'
-    };
-    return sortLabels[sortBy as keyof typeof sortLabels] || 'Sort';
   };
 
   return (

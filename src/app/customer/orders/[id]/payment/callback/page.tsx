@@ -6,15 +6,9 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
-import { Funnel_Sans } from "next/font/google";
 import { notify } from '@/components/ui/Notification';
 import { BASE_URL } from '@/config/api';
 
-
-const funnelSans = Funnel_Sans({
-    subsets: ["latin"],
-    weight: ["400", "600", "700"],
-});
 
 export default function PaymentCallback() {
     const searchParams = useSearchParams();

@@ -1,13 +1,11 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Header from '../header';
 import Footer from '@/components/ui/Footer';
 
-export default function ContactPage() {
+function ContactContent() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,8 +13,7 @@ export default function ContactPage() {
     message: ''
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [activeSection, setActiveSection] = useState('');
-  const sectionRefs = useRef([]);
+  const sectionRefs = useRef<HTMLElement[]>([]);
 
   useEffect(() => {
     const current = sectionRefs.current;
@@ -24,7 +21,9 @@ export default function ContactPage() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
+            // Remove the unused activeSection setter
+            entry.target.classList.add('animate-fade-in');
+            entry.target.classList.remove('opacity-0');
           }
         });
       },
@@ -42,15 +41,15 @@ export default function ContactPage() {
     };
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Here you would typically send the form data to your backend
     console.log('Form submitted:', formData);
@@ -105,27 +104,10 @@ export default function ContactPage() {
     }
   ];
 
-  const faqs = [
-    {
-      question: "How long does it take to get a response?",
-      answer: "We typically respond to all inquiries within 24 hours during business days."
-    },
-    {
-      question: "Do you offer international shipping?",
-      answer: "Yes, we ship to over 50 countries worldwide. Shipping times and costs vary by location."
-    },
-    {
-      question: "What is your return policy?",
-      answer: "We offer a 30-day return policy on all unused items in their original packaging."
-    },
-    {
-      question: "Can I change or cancel my order?",
-      answer: "Orders can be changed or cancelled within 1 hour of placement. Contact us immediately for assistance."
-    }
-  ];
+ 
 
   // Add ref to each section for animation
-  const addToRefs = (el) => {
+  const addToRefs = (el: HTMLElement | null) => {
     if (el && !sectionRefs.current.includes(el)) {
       sectionRefs.current.push(el);
     }
@@ -340,5 +322,24 @@ export default function ContactPage() {
       {/* Footer */}
       <Footer/>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+        <p className="mt-2 text-gray-600">Loading contact page...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ContactContent />
+    </Suspense>
   );
 }

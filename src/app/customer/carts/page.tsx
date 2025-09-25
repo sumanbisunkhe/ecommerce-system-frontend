@@ -8,8 +8,6 @@ import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import CheckoutModal from '@/components/checkout/CheckoutModal';
-import Footer from '@/components/ui/Footer';
 import { BASE_URL } from '@/config/api';
 
 
@@ -40,29 +38,11 @@ interface Cart {
   totalPrice: number;
 }
 
-interface OrderResponse {
-  id: number;
-  userId: number;
-  items: Array<{
-    productId: number;
-    quantity: number;
-    price: number;
-    totalPrice: number;
-  }>;
-  totalAmount: number;
-  status: string;
-  paymentStatus: string;
-  shippingAddress: string;
-  shippingCost: number;
-}
-
 export default function CartPage() {
   const [cart, setCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [shippingAddress, setShippingAddress] = useState('');
-  const [orderDetails, setOrderDetails] = useState<OrderResponse | null>(null);
   const [isDeletingItem, setIsDeletingItem] = useState<number | null>(null);
   const [isClearingCart, setIsClearingCart] = useState(false);
   const router = useRouter();
@@ -146,50 +126,6 @@ export default function CartPage() {
 
     fetchCart();
   }, []);
-
-  const handleCheckout = async (shippingAddress: string) => {
-    try {
-      const userCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('user='))
-        ?.split('=')[1];
-
-      if (!userCookie) {
-        throw new Error('User not found');
-      }
-
-      const userData = JSON.parse(decodeURIComponent(userCookie));
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('token='))
-        ?.split('=')[1];
-
-      const response = await fetch(`${BASE_URL}/orders`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          userId: userData.id,
-          shippingAddress
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        notify.success('Order placed successfully!');
-        setIsCheckoutModalOpen(false);
-        router.push('/customer/orders');
-      } else {
-        throw new Error(data.message);
-      }
-    } catch (error: any) {
-      notify.error(error.message);
-    }
-  };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -454,19 +390,6 @@ export default function CartPage() {
                       />
                     </div>
 
-                    {orderDetails && (
-                      <div className="bg-white rounded-lg border border-gray-200 p-3 text-sm">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-gray-600">Shipping:</span>
-                          <span className="font-medium">रु{orderDetails.shippingCost.toLocaleString('en-IN')}</span>
-                        </div>
-                        <div className="flex justify-between font-semibold">
-                          <span className="text-gray-900">Total:</span>
-                          <span className="text-blue-600">रु{orderDetails.totalAmount.toLocaleString('en-IN')}</span>
-                        </div>
-                      </div>
-                    )}
-
                     <div className="flex gap-2">
                       <button
                         type="submit"
@@ -492,3 +415,4 @@ export default function CartPage() {
     </div>
   );
 }
+          

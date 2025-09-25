@@ -8,8 +8,7 @@ import NotificationProvider from '@/components/ui/Notification';
 import Link from 'next/link';
 import { BASE_URL } from '@/config/api';
 
-import { Funnel_Sans, Markazi_Text } from 'next/font/google';
-const funnelSans = Funnel_Sans({ subsets: ['latin'], weight: '400' });
+import { Markazi_Text } from 'next/font/google';
 export const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
 
 interface UserUpdateData {
@@ -90,7 +89,7 @@ export default function EditUser() {
       const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
       // Only include non-empty fields in update
       const updateData = Object.fromEntries(
-        Object.entries(formData).filter(([_, value]) => value !== null && value !== '')
+        Object.entries(formData).filter(([, value]) => value !== null && value !== '')
       );
 
       const response = await fetch(`${BASE_URL}/users/${params.id}`, {

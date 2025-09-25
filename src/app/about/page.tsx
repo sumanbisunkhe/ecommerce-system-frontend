@@ -1,13 +1,14 @@
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Header from '../header';
 import Footer from '@/components/ui/Footer';
 
-export default function AboutPage() {
+function AboutContent() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRefs = useRef<HTMLElement[]>([]);
 
@@ -379,5 +380,13 @@ export default function AboutPage() {
       {/* Footer */}
       <Footer/>
     </div>
+  );
+}
+
+export default function AboutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <AboutContent />
+    </Suspense>
   );
 }

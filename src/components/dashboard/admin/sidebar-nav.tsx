@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState } from "react"
@@ -28,7 +27,6 @@ const funnelSans = Funnel_Sans({
 })
 
 interface AdminSidebarProps {
-  user: any;
   onCollapse?: (collapsed: boolean) => void;
 }
 
@@ -65,7 +63,7 @@ const navigation = [
   },
 ]
 
-export default function AdminSidebar({ user, onCollapse }: AdminSidebarProps) {
+export default function AdminSidebar({ onCollapse }: AdminSidebarProps) {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
