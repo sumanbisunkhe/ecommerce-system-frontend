@@ -2,27 +2,32 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-<footer className="bg-black text-yellow-400 py-12">
-      <div className="max-w-7xl mx-auto ">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-black text-yellow-400 py-8 sm:py-10 lg:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {/* Logo */}
-          <div>
-            <Link href="/" className="font-bold text-xl text-white">
+          <div className="text-center sm:text-left">
+            <Link
+              href="/"
+              className="font-bold text-xl sm:text-2xl text-white inline-block"
+            >
               HoT🔥sHoP
             </Link>
-            <p className="text-gray-400 mt-3">
+            <p className="text-gray-400 mt-3 text-sm sm:text-base">
               Premium online shopping experience with thousands of products.
             </p>
           </div>
 
           {/* Shop Links */}
-          <div>
-            <h4 className="font-semibold mb-4">Shop</h4>
+          <div className="text-center sm:text-left">
+            <h4 className="font-semibold mb-3 sm:mb-4 text-base sm:text-lg">
+              Shop
+            </h4>
             <ul className="space-y-2">
               <li>
                 <Link
                   href="/products"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
                 >
                   All Products
                 </Link>
@@ -30,38 +35,24 @@ const Footer = () => {
               <li>
                 <Link
                   href="/categories"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
                 >
                   Categories
                 </Link>
               </li>
-              {/* <li>
-                <Link
-                  href="/deals"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  Deals & Offers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/new-arrivals"
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  New Arrivals
-                </Link>
-              </li> */}
             </ul>
           </div>
 
           {/* Information Links */}
-          <div>
-            <h4 className="font-semibold mb-4">Information</h4>
+          <div className="text-center sm:text-left">
+            <h4 className="font-semibold mb-3 sm:mb-4 text-base sm:text-lg">
+              Information
+            </h4>
             <ul className="space-y-2">
               <li>
                 <Link
                   href="/about"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
                 >
                   About Us
                 </Link>
@@ -69,7 +60,7 @@ const Footer = () => {
               <li>
                 <Link
                   href="/contact"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
                 >
                   Contact Us
                 </Link>
@@ -77,27 +68,29 @@ const Footer = () => {
               <li>
                 <Link
                   href="/faq"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base"
                 >
                   FAQ
                 </Link>
               </li>
-             
             </ul>
           </div>
 
           {/* Social Links */}
-          <div>
-            <h4 className="font-semibold mb-4">Connect</h4>
-            <div className="flex space-x-4">
+          <div className="text-center sm:text-left">
+            <h4 className="font-semibold mb-3 sm:mb-4 text-base sm:text-lg">
+              Connect
+            </h4>
+            <div className="flex space-x-4 justify-center sm:justify-start">
               {/* Facebook */}
               <a
                 href="#"
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-white transition-colors transform hover:scale-110 duration-200"
+                aria-label="Facebook"
               >
                 <span className="sr-only">Facebook</span>
                 <svg
-                  className="h-6 w-6"
+                  className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
@@ -113,11 +106,12 @@ const Footer = () => {
               {/* Instagram */}
               <a
                 href="#"
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-white transition-colors transform hover:scale-110 duration-200"
+                aria-label="Instagram"
               >
                 <span className="sr-only">Instagram</span>
                 <svg
-                  className="h-6 w-6"
+                  className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
@@ -133,11 +127,12 @@ const Footer = () => {
               {/* Gmail */}
               <a
                 href="#"
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-gray-400 hover:text-white transition-colors transform hover:scale-110 duration-200"
+                aria-label="Gmail"
               >
                 <span className="sr-only">Gmail</span>
                 <svg
-                  className="h-6 w-6"
+                  className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
@@ -149,8 +144,10 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-          <p>© 2025 HoT🔥sHoP. All rights reserved.</p>
+        <div className="border-t border-gray-700 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-gray-400">
+          <p className="text-xs sm:text-sm">
+            © 2025 HoT🔥sHoP. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

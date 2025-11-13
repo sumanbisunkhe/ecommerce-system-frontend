@@ -519,7 +519,7 @@ export default function SettingsPage() {
       <NotificationProvider />
       <AdminHeader user={user} />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-8xl mx-auto px-4 py-8">
         <div className="flex gap-1 mb-6 p-1 bg-gray-100 rounded-xl w-fit">
           <button
             onClick={() => setActiveTab('profile')}
@@ -605,7 +605,7 @@ export default function SettingsPage() {
           )}
 
           {activeTab === 'security' && (
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-8xl mx-auto">
               <h2 className="text-xl font-semibold mb-8 mt-2 ">Change Password</h2>
 
               <form onSubmit={handlePasswordChange} className="space-y-6">

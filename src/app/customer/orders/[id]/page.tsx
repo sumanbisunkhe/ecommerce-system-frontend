@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
-    Package2, Loader2, ChevronLeft, Clock, CheckCircle2, XCircle, AlertCircle
+    Package2, Loader2, ChevronLeft, Clock, CheckCircle2, XCircle, AlertCircle, Sparkles
 } from 'lucide-react';
 import { Funnel_Sans } from "next/font/google";
 import Image from 'next/image';
@@ -289,45 +289,49 @@ export default function OrderDetailsPage() {
     }
 
     return (
-        <div className={`${funnelSans.className} container mx-auto px-20 py-8 pt-24 space-y-6`}>
+        <div className={`${funnelSans.className} mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-8 pt-20 sm:pt-24 space-y-4 sm:space-y-6 max-w-8xl`}>
             <NotificationProvider />
 
             {/* Order Header */}
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                <div className="flex flex-col md:flex-row md:items-center md:gap-6">
-                    <Link href="/customer/orders" className="inline-flex items-center text-gray-900 hover:text-gray-700">
-                        <ChevronLeft className="h-4 w-4" />
-                        <span className="hidden md:inline font-medium"></span>
-                    </Link>
-                    <h1 className="text-2xl font-semibold text-gray-900 mt-2 md:mt-0">Order #{order.id}</h1>
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 md:p-4 sm:p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 sm:gap-6">
+                        <Link href="/customer/orders" className="inline-flex items-center text-gray-900 hover:text-gray-700 shrink-0">
+                            <ChevronLeft className="h-5 w-5 sm:h-4 sm:w-4" />
+                        </Link>
+                        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Order #{order.id}</h1>
+                    </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
-                    <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                        Delivery:{getStatusIcon(order.status)} {order.status}
-                    </span>
-                    <span className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.paymentStatus)}`}>
-                        Payment: {order.paymentStatus}
-                    </span>
-                    <div className="text-right mt-1 md:mt-0">
-                        <p className="text-sm text-gray-600">Total Amount</p>
-                        <p className="text-2xl font-bold text-blue-600">रु{order.totalAmount.toLocaleString('en-IN')}</p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                        <span className={`flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getStatusColor(order.status)}`}>
+                            {getStatusIcon(order.status)} 
+                            <span className="hidden xs:inline">Delivery: </span>{order.status}
+                        </span>
+                        <span className={`flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getStatusColor(order.paymentStatus)}`}>
+                            <span className="hidden xs:inline">Payment: </span>{order.paymentStatus}
+                        </span>
+                    </div>
+                    <div className="text-left sm:text-right">
+                        <p className="text-xs sm:text-sm text-gray-600">Total Amount</p>
+                        <p className="text-xl sm:text-2xl font-bold text-blue-600">रु{order.totalAmount.toLocaleString('en-IN')}</p>
                     </div>
                 </div>
             </div>
 
             {/* Main Content Row */}
-            <div className="flex flex-col xl:flex-row gap-6">
+            <div className="flex flex-col xl:flex-row gap-4 sm:gap-6">
                 {/* Main Order Content - Modified to include recommendations */}
-                <div className="xl:w-[75%] space-y-6">
+                <div className="xl:w-[75%] space-y-4 sm:space-y-6">
                     {/* Order Items and Summary */}
-                    <div className="flex flex-col lg:flex-row gap-6">
+                    <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
                         {/* Order Items Section */}
                         <div className="lg:w-[60%]">
                             <div className="bg-white rounded-xl shadow-md border border-gray-200 divide-y divide-gray-200 overflow-hidden">
                                 {order.items.map((item) => (
-                                    <div key={item.productId} className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                                        <div className="relative w-full sm:w-24 h-24 flex-shrink-0">
+                                    <div key={item.productId} className="p-4 md:p-4 sm:p-6 flex gap-3 md:gap-4 sm:gap-6">
+                                        <div className="relative w-20 h-20 md:w-20 md:h-20 sm:w-24 sm:h-24 flex-shrink-0">
                                             <Image
                                                 src={item.product?.imageUrl || '/product-placeholder.png'}
                                                 alt={item.product?.name || 'Product'}
@@ -336,15 +340,18 @@ export default function OrderDetailsPage() {
                                             />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-medium text-gray-900 text-lg">{item.product?.name || 'Product Name Unavailable'}</h3>
-                                            <div className="mt-1 flex flex-wrap sm:flex-row sm:items-center gap-2 text-sm text-gray-500">
-                                                <p>Unit Price: रु{item.price.toLocaleString('en-IN')}</p>
+                                            <h3 className="font-medium text-gray-900 text-sm md:text-base sm:text-lg line-clamp-2">{item.product?.name || 'Product Name Unavailable'}</h3>
+                                            <div className="mt-1 sm:mt-2 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-500">
+                                                <p>रु{item.price.toLocaleString('en-IN')}</p>
                                                 <span className="hidden sm:inline">•</span>
-                                                <p>Quantity: {item.quantity}</p>
+                                                <p>Qty: {item.quantity}</p>
+                                            </div>
+                                            <div className="mt-2 sm:hidden">
+                                                <p className="font-semibold text-blue-600 text-base">रु{item.totalPrice.toLocaleString('en-IN')}</p>
                                             </div>
                                         </div>
-                                        <div className="text-right mt-2 sm:mt-0">
-                                            <p className="font-semibold text-blue-600 text-lg">रु{item.totalPrice.toLocaleString('en-IN')}</p>
+                                        <div className="hidden sm:block text-right">
+                                            <p className="font-semibold text-blue-600 text-base md:text-base lg:text-lg">रु{item.totalPrice.toLocaleString('en-IN')}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -353,11 +360,11 @@ export default function OrderDetailsPage() {
 
                         {/* Order Summary Section */}
                         <div className="lg:w-[40%]">
-                            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 space-y-6">
+                            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 md:p-4 sm:p-6 space-y-4 sm:space-y-6">
                                 {/* Shipping Address */}
                                 <div>
-                                    <h2 className="font-medium text-gray-900 mb-2 text-lg">Shipping Address</h2>
-                                    <p className="text-gray-600">{order.shippingAddress}</p>
+                                    <h2 className="font-medium text-gray-900 mb-2 text-base md:text-base sm:text-lg">Shipping Address</h2>
+                                    <p className="text-sm md:text-sm sm:text-base text-gray-600">{order.shippingAddress}</p>
                                 </div>
 
                                 {/* Divider */}
@@ -365,16 +372,16 @@ export default function OrderDetailsPage() {
 
                                 {/* Order Summary */}
                                 <div className="space-y-2 text-gray-700">
-                                    <h2 className="font-medium text-gray-900 mb-3 text-lg">Order Summary</h2>
-                                    <div className="flex justify-between text-sm">
+                                    <h2 className="font-medium text-gray-900 mb-3 text-base md:text-base sm:text-lg">Order Summary</h2>
+                                    <div className="flex justify-between text-xs md:text-xs sm:text-sm">
                                         <span>Subtotal:</span>
                                         <span className="font-medium">रु{order.subtotal.toLocaleString('en-IN')}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between text-xs md:text-xs sm:text-sm">
                                         <span>Shipping Cost:</span>
                                         <span className="font-medium">{order.shippingCost ? `रु${order.shippingCost.toLocaleString('en-IN')}` : 'Free'}</span>
                                     </div>
-                                    <div className="flex justify-between border-t border-gray-200 pt-3 text-lg font-bold text-blue-600">
+                                    <div className="flex justify-between border-t border-gray-200 pt-3 text-base md:text-base sm:text-lg font-bold text-blue-600">
                                         <span>Total:</span>
                                         <span>रु{order.totalAmount.toLocaleString('en-IN')}</span>
                                     </div>
@@ -384,10 +391,10 @@ export default function OrderDetailsPage() {
                     </div>
 
                     {/* Payment Options Section */}
-                    <div className="flex justify-between items-center bg-white rounded-xl shadow-md border border-gray-200 p-6">
-                        <div className="space-y-4">
-                            <h3 className="font-medium text-gray-900">Select Payment Method</h3>
-                            <div className="flex gap-6">
+                    <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 md:p-4 sm:p-6 space-y-4">
+                        <h3 className="font-medium text-gray-900 text-sm md:text-sm sm:text-base">Select Payment Method</h3>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="flex flex-row gap-4 sm:gap-6">
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
@@ -403,7 +410,7 @@ export default function OrderDetailsPage() {
                                             alt="Khalti"
                                             width={24}
                                             height={24}
-                                            className="h-6"
+                                            className="h-5 md:h-5 sm:h-6"
                                         />
                                     </span>
                                 </label>
@@ -422,84 +429,87 @@ export default function OrderDetailsPage() {
                                             alt="Cash on Delivery"
                                             width={32}
                                             height={32}
-                                            className="h-8"
+                                            className="h-6 md:h-7 sm:h-8"
                                         />
                                     </span>
                                 </label>
                             </div>
-                        </div>
 
-                        <button
-                            onClick={() => {
-                                if (selectedPayment === 'KHALTI') {
-                                    initiatePayment();
-                                } else {
-                                    notify.success('Order confirmed with Cash on Delivery!');
-                                    // Add COD logic here
-                                }
-                            }}
-                            disabled={!selectedPayment || isInitiatingPayment || isPaymentCompleted}
-                            className={`px-6 py-3 font-semibold rounded-lg flex items-center gap-2 shadow-md
-                                ${!selectedPayment || isInitiatingPayment || isPaymentCompleted
-                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
-                                } transition-all duration-200`}
-                        >
-                            {isInitiatingPayment ? (
-                                <>
-                                    <Loader2 className="h-5 w-5 animate-spin" />
-                                    Initiating Payment...
-                                </>
-                            ) : (
-                                <>
-                                    {isPaymentCompleted ? 'Payment Completed' : 'Confirm Order'}
-                                    <CheckCircle2 className="h-5 w-5" />
-                                </>
-                            )}
-                        </button>
+                            <button
+                                onClick={() => {
+                                    if (selectedPayment === 'KHALTI') {
+                                        initiatePayment();
+                                    } else {
+                                        notify.success('Order confirmed with Cash on Delivery!');
+                                        // Add COD logic here
+                                    }
+                                }}
+                                disabled={!selectedPayment || isInitiatingPayment || isPaymentCompleted}
+                                className={`w-full sm:w-auto px-4 md:px-5 sm:px-6 py-2.5 md:py-2.5 sm:py-3 text-sm md:text-sm sm:text-base font-semibold rounded-lg flex items-center justify-center gap-2 shadow-md whitespace-nowrap
+                                    ${!selectedPayment || isInitiatingPayment || isPaymentCompleted
+                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
+                                    } transition-all duration-200`}
+                            >
+                                {isInitiatingPayment ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 md:h-4 md:w-4 sm:h-5 sm:w-5 animate-spin" />
+                                        <span className="hidden xs:inline">Initiating Payment...</span>
+                                        <span className="xs:hidden">Processing...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        {isPaymentCompleted ? 'Payment Completed' : 'Confirm Order'}
+                                        <CheckCircle2 className="h-4 w-4 md:h-4 md:w-4 sm:h-5 sm:w-5" />
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 {/* Right Sidebar - Recommendations */}
-                <div className="xl:w-[25%] space-y-6">
+                <div className="xl:w-[25%] space-y-4 sm:space-y-6">
                   {/* Recommended Products */}
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="p-4 border-b border-gray-100">
-                      <h3 className="font-semibold text-gray-900">Recommended Products</h3>
+                    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-3 sm:p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                        <h3 className="text-sm sm:text-base font-bold text-white">For You</h3>
+                      </div>
+                      <p className="text-white/90 text-[10px] sm:text-xs">Personalized picks just for you</p>
                     </div>
                     <div className="divide-y divide-gray-100">
                       {recommendedProducts.length === 0 ? (
-                        <div className="p-4 text-gray-500 text-sm">No recommendations available.</div>
+                        <div className="p-4 text-gray-500 text-xs sm:text-sm text-center">No recommendations available.</div>
                       ) : (
                         recommendedProducts.slice(0, 5).map((product) => (
                           <Link
                             key={product.id}
                             href={`/customer/products/${product.id}`}
-                            className="block hover:bg-gray-50 transition-colors"
+                            className="group flex gap-2 sm:gap-3 p-2.5 sm:p-3 hover:bg-gray-50 transition-colors"
                           >
-                            <div className="flex gap-4 p-4">
-                              <div className="relative w-16 h-16 rounded-lg border border-gray-200 overflow-hidden flex-shrink-0">
-                                <Image
-                                  src={product.imageUrl || '/product-placeholder.png'}
-                                  alt={product.name}
-                                  fill
-                                  className="object-cover"
-                                  sizes="64px"
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-medium text-gray-900 truncate">
-                                  {product.name}
-                                </h4>
-                                <p className="text-sm font-medium text-blue-600 mt-1">
-                                  रु {product.price.toLocaleString('en-IN')}
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  {product.recommendationType === 'COLLABORATIVE'
-                                    ? 'Based on similar users'
-                                    : 'Similar to your interests'}
-                                </p>
-                              </div>
+                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                              <Image
+                                src={product.imageUrl || '/product-placeholder.png'}
+                                alt={product.name}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 640px) 56px, 64px"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-xs sm:text-sm font-medium text-gray-900 mb-1 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                                {product.name}
+                              </h4>
+                              <p className="text-sm sm:text-base font-bold text-indigo-600 mb-1">
+                                रु {product.price.toLocaleString('en-IN')}
+                              </p>
+                              <p className="text-[10px] sm:text-xs text-gray-500">
+                                {product.recommendationType === 'COLLABORATIVE'
+                                  ? '👥 Popular choice'
+                                  : '✨ Similar items'}
+                              </p>
                             </div>
                           </Link>
                         ))

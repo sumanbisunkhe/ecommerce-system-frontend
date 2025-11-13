@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Funnel_Sans } from "next/font/google";
-import { CreditCard, Loader2, ListFilter, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Wallet, Loader2, ListFilter, CheckCircle, Clock, XCircle, Receipt } from 'lucide-react';
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Image from 'next/image';
@@ -193,83 +193,132 @@ export default function PaymentHistoryPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 pt-16">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 pt-16 px-4">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+          <p className="text-sm text-gray-600 font-medium">Loading your payments...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`${funnelSans.className} min-h-screen bg-gray-50 pt-20`}>
+    <div className={`${funnelSans.className} min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 pt-16 sm:pt-20 lg:pt-24`}>
       <NotificationProvider />
-      <div className="max-w-8fxl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          {/* Enhanced Header */}
-          <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/80">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-600 rounded-xl shadow-lg">
-                  <CreditCard className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Payment History</h1>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Track and manage your payment transactions
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <ListFilter className="h-4 w-4 text-gray-400" />
+      <div className="max-w-8xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {/* Clean Premium Header */}
+        <div className="mb-4 sm:mb-6 lg:mb-8 bg-white/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="relative px-4 sm:px-6 lg:px-10 py-4 sm:py-6 bg-white">
+            {/* Subtle Pattern Overlay */}
+            <div className="absolute inset-0 bg-grid-gray-900/[0.02] bg-[size:20px_20px]"></div>
+            
+            <div className="relative">
+              {/* Single Row Layout */}
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-8">
+                {/* Left - Title with Icon */}
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <div className="p-2.5 sm:p-3 bg-blue-50 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-blue-100 flex-shrink-0">
+                    <Wallet className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-blue-600" strokeWidth={2.5} />
                   </div>
-                  <select
-                    value={currentFilter}
-                    onChange={(e) => setCurrentFilter(e.target.value)}
-                    className="pl-10 pr-10 py-2 border border-gray-200 rounded-lg text-sm bg-white shadow-sm
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                             appearance-none cursor-pointer hover:bg-gray-50 transition-colors"
-                  >
-                    {filterOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option.charAt(0) + option.slice(1).toLowerCase().replace('_', ' ')}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight truncate">
+                      Payment History
+                    </h1>
+                    <p className="text-gray-600 text-xs sm:text-sm hidden sm:block">
+                      Track all your transactions
+                    </p>
+                  </div>
+                </div>
+
+                {/* Center - Stats */}
+                <div className="flex items-center gap-4 sm:gap-6">
+                  {/* Total Transactions */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 sm:p-2 bg-blue-50 backdrop-blur-sm rounded-lg border border-blue-100 flex-shrink-0">
+                      <Receipt className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-600 font-medium">Transactions</p>
+                      <p className="text-lg sm:text-xl font-bold text-gray-900">
+                        {pageInfo.totalElements}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="hidden sm:block h-10 w-px bg-gray-200"></div>
+
+                  {/* Current Filter Display */}
+                  <div className="hidden sm:block">
+                    <p className="text-xs text-gray-600 font-medium">Period</p>
+                    <p className="text-sm sm:text-base font-bold text-gray-900 capitalize whitespace-nowrap">
+                      {currentFilter === 'ALL' ? 'All Time' : currentFilter.toLowerCase().replace('_', ' ')}
+                    </p>
+                  </div>
                 </div>
                 
-                <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg border border-blue-100">
-                  <span className="text-sm font-medium text-blue-600">
-                    {pageInfo.totalElements}
-                  </span>
-                  <span className="text-sm text-blue-600">
-                    {pageInfo.totalElements === 1 ? 'payment' : 'payments'}
-                  </span>
+                {/* Right - Filter */}
+                <div className="w-full lg:w-auto">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-3 sm:left-3.5 flex items-center pointer-events-none">
+                      <ListFilter className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
+                    </div>
+                    <select
+                      value={currentFilter}
+                      onChange={(e) => setCurrentFilter(e.target.value)}
+                      className="w-full lg:w-auto pl-9 sm:pl-10 pr-9 sm:pr-10 py-2.5 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl 
+                               text-xs sm:text-sm font-semibold bg-white shadow-md
+                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                               appearance-none cursor-pointer hover:shadow-lg transition-all duration-200
+                               text-gray-700 lg:min-w-[180px]"
+                    >
+                      {filterOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option.charAt(0) + option.slice(1).toLowerCase().replace('_', ' ')}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-3 sm:right-3.5 flex items-center pointer-events-none">
+                      <svg className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Payment List */}
-          <div className="divide-y divide-gray-100">
-            {payments.length === 0 ? (
-              <div className="p-16 text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-50 flex items-center justify-center">
-                  <CreditCard className="h-10 w-10 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No payments found</h3>
-                <p className="text-gray-500 max-w-sm mx-auto">
-                  There are no payment records for the selected time period.
-                  Try adjusting your filter settings to view more transactions.
-                </p>
+        {/* Payment Cards */}
+        <div className="space-y-4 sm:space-y-5 lg:space-y-6">
+          {payments.length === 0 ? (
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl border border-white/20 p-8 sm:p-12 lg:p-16 text-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-4 sm:mb-6 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 
+                flex items-center justify-center shadow-inner">
+                <Wallet className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-gray-400" />
               </div>
-            ) : (
-              Object.entries(groupPaymentsByDate(payments)).map(([date, datePayments]) => (
-                <div key={date} className="divide-y divide-gray-100/50">
-                  <div className="px-8 py-4 bg-gradient-to-r from-gray-50 to-transparent">
-                    <h3 className="text-sm font-semibold text-gray-600">{date}</h3>
-                  </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">No payments found</h3>
+              <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto leading-relaxed">
+                There are no payment records for the selected time period.
+                Try adjusting your filter settings to view more transactions.
+              </p>
+            </div>
+          ) : (
+            Object.entries(groupPaymentsByDate(payments)).map(([date, datePayments]) => (
+              <div key={date} className="space-y-3 sm:space-y-4">
+                {/* Date Header */}
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+                  <h3 className="text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wider px-3 sm:px-4 py-1.5 sm:py-2 
+                    bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-100 whitespace-nowrap">
+                    {date}
+                  </h3>
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+                </div>
+
+                {/* Payment Cards */}
+                <div className="space-y-2.5 sm:space-y-3">
                   {datePayments.map((payment) => {
                     const statusConfig = getStatusConfig(payment.status);
                     const { time } = formatDate(payment.createdAt);
@@ -277,74 +326,97 @@ export default function PaymentHistoryPage() {
                     return (
                       <div 
                         key={payment.id}
-                        className={`p-6 bg-white hover:bg-gray-50/80 transition-all duration-200 
-                          ${statusConfig.cardBorder} shadow-sm hover:shadow-md rounded-lg mb-4`}
+                        className="group bg-white/80 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl 
+                          transition-all duration-300 border border-white/20 overflow-hidden
+                          sm:hover:scale-[1.01] sm:hover:-translate-y-1"
                       >
-                        <div className="flex items-start justify-between gap-8">
-                          <div className="flex items-start gap-4">
-                            <div className={`p-2 rounded-lg ${statusConfig.iconBg}`}>
-                              {getStatusIcon(payment.status)}
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <div className="flex flex-wrap items-center gap-3">
-                                <span className="text-base font-semibold text-gray-900">
-                                  Payment #{payment.id}
-                                </span>
-                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full 
-                                  text-xs font-medium ring-1 ring-inset ${statusConfig.colors}`}>
-                                  {payment.status.toLowerCase()}
-                                </span>
-                                <span className={`text-xs px-2 py-1 rounded-md bg-gray-100 
-                                  font-medium ${statusConfig.timeColor}`}>
-                                  {time}
-                                </span>
+                        <div className={`h-0.5 sm:h-1 bg-gradient-to-r ${
+                          payment.status === 'COMPLETED' ? 'from-green-400 to-emerald-500' :
+                          payment.status === 'PENDING' ? 'from-amber-400 to-orange-500' :
+                          'from-red-400 to-rose-500'
+                        }`}></div>
+                        
+                        <div className="p-4 sm:p-5 lg:p-6">
+                          <div className="flex flex-col lg:flex-row items-start justify-between gap-4 sm:gap-5 lg:gap-6">
+                            {/* Left Section */}
+                            <div className="flex items-start gap-3 sm:gap-4 flex-1 w-full">
+                              {/* Status Icon */}
+                              <div className={`p-2 sm:p-2.5 lg:p-3 rounded-lg sm:rounded-xl ${statusConfig.iconBg} shadow-sm ring-2 ring-white/50
+                                group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+                                {getStatusIcon(payment.status)}
                               </div>
+                              
+                              {/* Payment Details */}
+                              <div className="space-y-2.5 sm:space-y-3 flex-1 min-w-0">
+                                {/* Top Row */}
+                                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                  <span className="text-base sm:text-lg font-bold text-gray-900">
+                                    Payment #{payment.id}
+                                  </span>
+                                  <span className={`inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg 
+                                    text-[10px] sm:text-xs font-bold uppercase tracking-wide ring-1 ring-inset ${statusConfig.colors}
+                                    shadow-sm`}>
+                                    {payment.status}
+                                  </span>
+                                  <span className="text-[10px] sm:text-xs px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg bg-gray-100 
+                                    font-semibold text-gray-700 border border-gray-200 whitespace-nowrap">
+                                    {time}
+                                  </span>
+                                </div>
 
-                              <div className="flex items-center gap-3">
-                                {getPaymentMethodIcon(payment.method) && (
-                                  <div className="relative w-8 h-8 rounded-md overflow-hidden 
-                                    border border-gray-200 bg-white">
-                                    <Image
-                                      src={getPaymentMethodIcon(payment.method)!}
-                                      alt={payment.method}
-                                      fill
-                                      className="object-contain p-1"
-                                    />
+                                {/* Payment Method */}
+                                <div className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 bg-gradient-to-r from-gray-50 to-transparent 
+                                  rounded-lg sm:rounded-xl border border-gray-100/50">
+                                  {getPaymentMethodIcon(payment.method) && (
+                                    <div className="relative w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg overflow-hidden 
+                                      border-2 border-white bg-white shadow-sm flex-shrink-0">
+                                      <Image
+                                        src={getPaymentMethodIcon(payment.method)!}
+                                        alt={payment.method}
+                                        fill
+                                        className="object-contain p-1 sm:p-1.5"
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs sm:text-sm font-bold text-gray-900 truncate">
+                                      {payment.method.replace('_', ' ')}
+                                    </p>
+                                    <p className="text-[10px] sm:text-xs text-gray-500 font-mono truncate">
+                                      {payment.transactionId}
+                                    </p>
                                   </div>
-                                )}
-                                <span className="text-sm font-medium text-gray-700">
-                                  {payment.method}
-                                </span>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-500 font-mono bg-gray-50/80 
-                                  px-3 py-1.5 rounded-md border border-gray-100">
-                                  {payment.transactionId}
-                                </span>
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          <div className="text-right flex-shrink-0">
-                            <p className="text-2xl font-bold text-gray-900 mb-1">
-                              रु {payment.amount.toLocaleString('en-IN')}
-                            </p>
-                            {payment.status === 'COMPLETED' && (
-                              <p className={`text-xs ${statusConfig.timeColor}`}>
-                                Completed at {formatDate(payment.updatedAt).time}
-                              </p>
-                            )}
+                            {/* Right Section - Amount */}
+                            <div className="w-full lg:w-auto text-left lg:text-right flex-shrink-0">
+                              <div className="inline-flex flex-col items-start lg:items-end p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-indigo-50 
+                                rounded-lg sm:rounded-xl border border-blue-100/50 shadow-sm w-full lg:w-auto">
+                                <p className="text-[10px] sm:text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">
+                                  Amount
+                                </p>
+                                <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 
+                                  bg-clip-text text-transparent">
+                                  रु {payment.amount.toLocaleString('en-IN')}
+                                </p>
+                              </div>
+                              {payment.status === 'COMPLETED' && (
+                                <p className="text-[10px] sm:text-xs text-green-600 font-medium mt-2">
+                                  ✓ Completed at {formatDate(payment.updatedAt).time}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-              ))
-            )}
-          </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
