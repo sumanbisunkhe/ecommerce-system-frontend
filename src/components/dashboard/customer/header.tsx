@@ -8,14 +8,13 @@ import {
   Star, ChartLine, CreditCard, LogOut, Settings, 
   ChevronDown, Eye, Search, X, Menu
 } from 'lucide-react';
-import { Funnel_Sans, Fascinate, Poppins } from "next/font/google";
+import { Funnel_Sans, Fascinate } from "next/font/google";
 import debounce from 'lodash/debounce';
 import Image from 'next/image';
 import { BASE_URL } from '@/config/api';
 
 const funnelSans = Funnel_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 const fascinate = Fascinate({ subsets: ["latin"], weight: "400" });
-const poppins = Poppins({ subsets: ["latin"], weight: ["600", "700", "800"] }); // Add Poppins for logo
 
 const NAVIGATION_ITEMS = [
   { name: 'Products', href: '/customer/products', icon: LayoutGrid },
@@ -170,13 +169,6 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
     if (pathname.startsWith('/customer/products')) {
       router.push('/customer/products');
     }
-  };
-
-  const handleSearchIconClick = () => {
-    setIsSearchExpanded(true);
-    setTimeout(() => {
-      searchInputRef.current?.focus();
-    }, 100);
   };
 
   const handleLogout = () => {

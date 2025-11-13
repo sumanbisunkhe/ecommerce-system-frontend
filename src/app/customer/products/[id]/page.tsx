@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, Loader2, Plus, Minus, ShoppingCart, ChevronRight } from 'lucide-react';
@@ -35,11 +35,11 @@ interface Recommendation {
     score: number;
 }
 
-// Add this interface after the existing interfaces
-interface RecommendedProduct extends Product {
-    recommendationType: 'COLLABORATIVE' | 'CONTENT_BASED';
-    recommendationScore: number;
-}
+// // Add this interface after the existing interfaces
+// interface RecommendedProduct extends Product {
+//     recommendationType: 'COLLABORATIVE' | 'CONTENT_BASED';
+//     recommendationScore: number;
+// }
 
 interface Category {
     id: number;
@@ -51,7 +51,7 @@ interface Category {
 
 export default function ProductDetailsPage() {
     const params = useParams();
-    const router = useRouter();
+    // const router = useRouter();
     const [product, setProduct] = useState<Product | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
@@ -217,7 +217,7 @@ export default function ProductDetailsPage() {
                             <ChevronLeft className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-indigo-600" />
                         </div>
                         <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-2 sm:mb-3">Product not found</h3>
-                        <p className="text-slate-600 mb-4 sm:mb-6 text-xs sm:text-sm md:text-base">The product you're looking for doesn't exist or has been removed.</p>
+                        <p className="text-slate-600 mb-4 sm:mb-6 text-xs sm:text-sm md:text-base">The product you&apos;re looking for doesn&apos;t exist or has been removed.</p>
                         <Link
                             href="/customer/products"
                             className="inline-flex items-center gap-2 px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-xs sm:text-sm md:text-base"

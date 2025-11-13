@@ -102,7 +102,7 @@ const OrderDistributionChart = ({ analytics }: { analytics: UserAnalytics }) => 
                 padding: 20,
                 font: {
                   size: 12,
-                  weight: '500',
+                  weight: 500,
                 },
                 usePointStyle: true,
                 pointStyle: 'circle',
@@ -202,7 +202,7 @@ const CategoryChart = ({ categories }: { categories: string[] }) => {
 
 // Spending Trend Chart
 const SpendingTrendChart = ({ totalSpent }: { totalSpent: number }) => {
-  const monthlyData = Array.from({ length: 6 }, (_, i) => 
+  const monthlyData = Array.from({ length: 6 }, () => 
     Math.floor(totalSpent / 6 + (Math.random() - 0.5) * (totalSpent / 10))
   );
 

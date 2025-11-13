@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react/no-unescaped-entities */
-
 'use client';
 
 import { useState, useEffect, type ReactNode } from 'react';
@@ -160,8 +157,12 @@ export default function OrdersPage() {
         } else {
           throw new Error(data.message);
         }
-      } catch (error: any) {
-        notify.error(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          notify.error(error.message);
+        } else {
+          notify.error('An unknown error occurred');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -206,7 +207,7 @@ export default function OrdersPage() {
           const recData = await recResp.json();
           if (recData.success) {
             const prodDetails = await Promise.all(
-              recData.data.map(async (rec: any) => {
+              recData.data.map(async (rec: { productId: number; type: 'COLLABORATIVE' | 'CONTENT_BASED'; score: number }) => {
                 try {
                   const pResp = await fetch(`${BASE_URL}/products/${rec.productId}`, {
                     headers: { Authorization: `Bearer ${token}` },
@@ -265,8 +266,12 @@ export default function OrdersPage() {
 
       setOrders(orders.filter(order => order.id !== orderId));
       notify.success('Order deleted successfully');
-    } catch (error: any) {
-      notify.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        notify.error(error.message);
+      } else {
+        notify.error('An unknown error occurred');
+      }
     }
     setDeleteOrderId(null);
   };
@@ -517,7 +522,7 @@ export default function OrdersPage() {
                           {/* Product Images - Responsive */}
                           <div className="mb-4 sm:mb-6">
                             <div className="flex items-center gap-2 sm:gap-3 mb-3 overflow-x-auto pb-2">
-                              {order.items.slice(0, 4).map((item, idx) => (
+                              {order.items.slice(0, 4).map((item) => (
                                 <div
                                   key={item.productId}
                                   className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-lg sm:rounded-xl bg-gray-100 overflow-hidden ring-2 ring-gray-200 hover:ring-indigo-400 transition-all shadow-sm"

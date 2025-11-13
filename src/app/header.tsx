@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { ShoppingCart,LayoutGrid, ChartColumnStacked,LogOut, Settings, ChevronDown, Eye, Search, X, Menu, User } from 'lucide-react';
 import { Funnel_Sans, Fascinate } from "next/font/google";
 import debounce from 'lodash/debounce';
@@ -25,7 +25,6 @@ interface HeaderProps {
 }
 
 export default function Header({ user: initialUser }: HeaderProps) {
-  const searchParams = useSearchParams();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(initialUser);
@@ -35,17 +34,20 @@ export default function Header({ user: initialUser }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Initialize search query from URL on mount
+  // Initialize search query from URL on mount (client-side only)
   useEffect(() => {
-    const urlSearchQuery = searchParams.get('search');
-    if (urlSearchQuery) {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlSearchQuery = urlParams.get('search') || '';
       setSearchQuery(urlSearchQuery);
     }
-  }, [searchParams]);
+  }, [pathname]);
 
-  // Fix the debounced search function with proper dependencies
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
+  // Use a ref to store the debounced search function
+  const debouncedSearchRef = useRef<((query: string) => void) & { cancel: () => void } | null>(null);
+
+  useEffect(() => {
+    debouncedSearchRef.current = debounce((query: string) => {
       if (pathname.startsWith('/products')) {
         if (query.trim()) {
           router.push(`/products?search=${encodeURIComponent(query.trim())}`);
@@ -53,20 +55,15 @@ export default function Header({ user: initialUser }: HeaderProps) {
           router.push('/products');
         }
       }
-    }, 300),
-    [router, pathname]
-  );
-
-  // Cleanup debounce on unmount
-  useEffect(() => {
+    }, 300);
     return () => {
-      debouncedSearch.cancel();
+      debouncedSearchRef.current?.cancel();
     };
-  }, [debouncedSearch]);
+  }, [router, pathname]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    debouncedSearch.cancel();
+    debouncedSearchRef.current?.cancel();
     if (searchQuery.trim()) {
       router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
     } else if (pathname.startsWith('/products')) {
@@ -77,7 +74,7 @@ export default function Header({ user: initialUser }: HeaderProps) {
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    debouncedSearch(query);
+    debouncedSearchRef.current?.(query);
   };
 
   // Update search field when URL changes
@@ -162,7 +159,7 @@ export default function Header({ user: initialUser }: HeaderProps) {
                     type="button"
                     onClick={() => {
                       setSearchQuery('');
-                      debouncedSearch.cancel();
+                      debouncedSearchRef.current?.cancel();
                       if (pathname.startsWith('/products')) {
                         router.push('/products');
                       }
@@ -388,7 +385,7 @@ export default function Header({ user: initialUser }: HeaderProps) {
                       type="button"
                       onClick={() => {
                         setSearchQuery('');
-                        debouncedSearch.cancel();
+                        debouncedSearchRef.current?.cancel();
                         if (pathname.startsWith('/products')) {
                           router.push('/products');
                         }

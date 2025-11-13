@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, Loader2, Plus, Minus, ShoppingCart, ChevronRight } from 'lucide-react';
-import { Funnel_Sans, Markazi_Text } from "next/font/google";
+import { Funnel_Sans } from "next/font/google";
 import { notify } from '@/components/ui/Notification';
 import NotificationProvider from '@/components/ui/Notification';
 import Header from '@/app/header';
@@ -16,7 +16,6 @@ import { BASE_URL } from '@/config/api';
 
 
 // Fonts
-const markaziText = Markazi_Text({ subsets: ['latin'], weight: ['400', '600', '700'] });
 const funnelSans = Funnel_Sans({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
 interface Product {
@@ -132,7 +131,7 @@ export default function ProductDetailsPage() {
                             <ChevronLeft className="h-10 w-10 sm:h-12 sm:w-12 text-indigo-600" />
                         </div>
                         <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Product not found</h3>
-                        <p className="text-slate-600 mb-6 text-sm sm:text-base">The product you're looking for doesn't exist or has been removed.</p>
+                        <p className="text-slate-600 mb-6 text-sm sm:text-base">The product you&#39;re looking for doesn&#39;t exist or has been removed.</p>
                         <Link
                             href="/products"
                             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base"

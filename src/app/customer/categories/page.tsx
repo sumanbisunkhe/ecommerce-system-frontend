@@ -213,7 +213,7 @@ export default function CategoriesPage() {
               
               <div className="relative z-10">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-                  Can't Find What You're Looking For?
+                  Can&apos;t Find What You&apos;re Looking For?
                 </h2>
                 <p className="text-indigo-100 text-base sm:text-lg mb-8 max-w-2xl mx-auto">
                   Browse all products or use our search to discover exactly what you need

@@ -14,7 +14,6 @@ import {
   Package,
   Clock,
   Users,
-  Filter,
   Grid3x3,
   LayoutGrid
 } from 'lucide-react';
