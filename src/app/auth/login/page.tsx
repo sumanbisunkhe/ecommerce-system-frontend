@@ -82,7 +82,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
         {/* Logo */}
         <div className="flex items-center justify-center w-full mb-4">
-          <a href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <span
               className={`
         ${fascinate.className}
@@ -94,7 +94,7 @@ export default function LoginPage() {
             >
               HotShop<span className="text-pink-500">.com</span>
             </span>
-          </a>
+          </Link>
         </div>
 
 

@@ -76,7 +76,7 @@ export default function RegisterPage() {
       <div className={`w-full max-w-4xl bg-white rounded-xl shadow-lg p-8 ${funnelSans.className}`}>
         {/* Logo */}
         <div className="flex items-center justify-center w-full mb-4">
-          <a href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <span
               className={`
         ${fascinate.className}
@@ -88,7 +88,7 @@ export default function RegisterPage() {
             >
               HotShop<span className="text-pink-500">.com</span>
             </span>
-          </a>
+          </Link>
         </div>
 
 

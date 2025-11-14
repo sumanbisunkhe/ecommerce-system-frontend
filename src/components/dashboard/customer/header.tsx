@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { 
@@ -54,6 +54,7 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const debouncedSearchRef = useRef<((query: string) => void) & { cancel: () => void } | null>(null);
 
   // Initialize search query from URL
   useEffect(() => {
@@ -99,23 +100,19 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
     return () => window.removeEventListener('cartUpdate', handleCartUpdate);
   }, [user]);
 
-  // Fix the debounced search function with proper dependencies
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
+  useEffect(() => {
+    debouncedSearchRef.current = debounce((query: string) => {
       if (pathname.startsWith('/customer/products')) {
-        const url = query.trim() 
+        const url = query.trim()
           ? `/customer/products?search=${encodeURIComponent(query.trim())}`
           : '/customer/products';
         router.push(url);
       }
-    }, 300),
-    [router, pathname]
-  );
-
-  // Cleanup debounce
-  useEffect(() => {
-    return () => debouncedSearch.cancel();
-  }, [debouncedSearch]);
+    }, 300);
+    return () => {
+      debouncedSearchRef.current?.cancel();
+    };
+  }, [router, pathname]);
 
   // User update listener
   useEffect(() => {
@@ -148,8 +145,8 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    debouncedSearch.cancel();
-    
+    debouncedSearchRef.current?.cancel();
+
     if (searchQuery.trim()) {
       router.push(`/customer/products?search=${encodeURIComponent(searchQuery.trim())}`);
     } else if (pathname.startsWith('/customer/products')) {
@@ -160,12 +157,12 @@ export default function CustomerHeader({ user: initialUser }: CustomerHeaderProp
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    debouncedSearch(query);
+    debouncedSearchRef.current?.(query);
   };
 
   const clearSearch = () => {
     setSearchQuery('');
-    debouncedSearch.cancel();
+    debouncedSearchRef.current?.cancel();
     if (pathname.startsWith('/customer/products')) {
       router.push('/customer/products');
     }
