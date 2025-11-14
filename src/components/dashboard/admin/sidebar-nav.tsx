@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Fascinate,Funnel_Sans } from "next/font/google"
+import { Fascinate, Funnel_Sans } from "next/font/google"
 
 import {
   LayoutDashboard,
@@ -43,7 +43,7 @@ const navigation = [
     icon: Users,
     description: "Customer management"
   },
-   {
+  {
     name: "Categories",
     href: "/admin/categories",
     icon: LayoutList,
@@ -91,11 +91,24 @@ export default function AdminSidebar({ onCollapse }: AdminSidebarProps) {
             >
 
               {!isCollapsed && (
-                <div className="flex flex-col">
-                  <span className={`${fascinate.className} text-gray-900 text-2xl font-bold tracking-wider`}>
-                    HoT🔥sHoP
-                  </span>
-                </div>
+                <a href="/admin/analytics">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`
+                      ${fascinate.className}
+                      text-blue-700 font-extrabold tracking-tight
+                      text-md sm:text-1xl lg:text-2xl
+                      leading-none select-none
+                    `}
+                      style={{
+                        letterSpacing: '-0.02em',
+                      }}
+                    >
+                      HotShop<span className="text-pink-500">.com</span>
+                    </span>
+                  </div>
+                </a>
+
               )}
             </Link>
 

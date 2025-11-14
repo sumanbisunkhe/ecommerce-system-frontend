@@ -11,7 +11,7 @@ const Footer = () => {
               href="/"
               className="font-bold text-xl sm:text-2xl text-white inline-block"
             >
-              HoT🔥sHoP
+              Hotshop.com
             </Link>
             <p className="text-gray-400 mt-3 text-sm sm:text-base">
               Premium online shopping experience with thousands of products.
@@ -146,7 +146,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-700 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-gray-400">
           <p className="text-xs sm:text-sm">
-            © 2025 HoT🔥sHoP. All rights reserved.
+            © 2025 Hotshop. All rights reserved.
           </p>
         </div>
       </div>

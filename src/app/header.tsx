@@ -137,9 +137,21 @@ export default function Header({ user: initialUser }: HeaderProps) {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
         <div className="flex justify-between items-center">
           {/* Logo - Always on the left */}
-          <Link href="/" className={`${fascinate.className} font-bold text-lg sm:text-xl text-gray-900`}>
-            HoT🔥sHoP
-          </Link>
+          <div className="flex items-center gap-2">
+                  <span
+                    className={`
+                      ${fascinate.className}
+                      text-blue-700 font-extrabold tracking-tight
+                      text-lg sm:text-2xl lg:text-3xl
+                      leading-none select-none
+                    `}
+                    style={{
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    HotShop<span className="text-pink-500">.com</span>
+                  </span>
+                </div>
 
           {/* Search Bar - Hidden on mobile, visible on md+ */}
           <div className="hidden md:flex flex-1 max-w-md mx-4 lg:mx-8">
@@ -467,7 +479,7 @@ export default function Header({ user: initialUser }: HeaderProps) {
               <div className="pt-4 border-t border-gray-200">
                 <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 text-center">
                   <User className="h-10 w-10 mx-auto mb-2 text-indigo-600" />
-                  <h3 className="font-semibold text-gray-900 mb-1">Join HoT🔥sHoP</h3>
+                  <h3 className="font-semibold text-gray-900 mb-1">Join Hotshop</h3>
                   <p className="text-xs text-gray-600 mb-3">Sign in to access your cart and orders</p>
                   <div className="flex gap-2">
                     <Link

@@ -7,7 +7,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'HoT🔥sHoP',
+  title: 'Hotshop - The Ecommerce Platform',
   description: 'Multi-role e-commerce platform',
 }
 

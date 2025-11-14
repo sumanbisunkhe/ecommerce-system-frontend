@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="public/logo.png" alt="HoT🔥sHoP Logo" width="200"/>
+  <img src="public/logo.png" alt="Hotshop Logo" width="200"/>
   
-  # HoT🔥sHoP - E-commerce Platform
+  # Hotshop.com - E-commerce Platform
   
   [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.0-6DB33F)](https://spring.io/projects/spring-boot)
   [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
@@ -221,7 +221,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <div align="center">
-  Made with ❤️ by the HoT🔥sHoP team
+  Made with ❤️ by the Suman Biunkhe
   <br/>
   <a href="https://twitter.com/hotshop">Twitter</a> • 
   <a href="https://linkedin.com/company/hotshop">LinkedIn</a> • 
