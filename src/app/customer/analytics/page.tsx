@@ -202,7 +202,7 @@ const CategoryChart = ({ categories }: { categories: string[] }) => {
 
 // Spending Trend Chart
 const SpendingTrendChart = ({ totalSpent }: { totalSpent: number }) => {
-  const monthlyData = Array.from({ length: 6 }, () => 
+  const monthlyData = Array.from({ length: 6 }, () =>
     Math.floor(totalSpent / 6 + (Math.random() - 0.5) * (totalSpent / 10))
   );
 
@@ -242,7 +242,7 @@ const SpendingTrendChart = ({ totalSpent }: { totalSpent: number }) => {
               padding: 12,
               cornerRadius: 8,
               callbacks: {
-                label: function(context) {
+                label: function (context) {
                   return `Spent: ${formatCurrency(context.parsed.y)}`;
                 }
               }
@@ -255,8 +255,8 @@ const SpendingTrendChart = ({ totalSpent }: { totalSpent: number }) => {
                 color: 'rgba(0, 0, 0, 0.05)',
               },
               ticks: {
-                callback: function(value) {
-                  return '$' + value.toLocaleString();
+                callback: function (value) {
+                  return 'रु' + value.toLocaleString();
                 },
                 font: {
                   size: 11,
@@ -414,8 +414,8 @@ export default function Analytics() {
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link 
-                href="/customer/products" 
+              <Link
+                href="/customer/products"
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ChevronLeft className="h-5 w-5 text-gray-600" />

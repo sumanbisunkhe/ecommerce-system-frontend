@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { ShoppingCart,LayoutGrid, ChartColumnStacked,LogOut, Settings, ChevronDown, Eye, Search, X, Menu, User } from 'lucide-react';
+import { ShoppingCart, LayoutGrid, ChartColumnStacked, LogOut, Settings, ChevronDown, Eye, Search, X, Menu, User } from 'lucide-react';
 import { Funnel_Sans, Fascinate } from "next/font/google";
 import debounce from 'lodash/debounce';
 import Image from 'next/image';
@@ -137,21 +137,21 @@ export default function Header({ user: initialUser }: HeaderProps) {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
         <div className="flex justify-between items-center">
           {/* Logo - Always on the left */}
-          <div className="flex items-center gap-2">
-                  <span
-                    className={`
+          <Link href="/" className="flex items-center gap-2">
+            <span
+              className={`
                       ${fascinate.className}
                       text-blue-700 font-extrabold tracking-tight
                       text-lg sm:text-2xl lg:text-3xl
                       leading-none select-none
                     `}
-                    style={{
-                      letterSpacing: '-0.02em',
-                    }}
-                  >
-                    HotShop<span className="text-pink-500">.com</span>
-                  </span>
-                </div>
+              style={{
+                letterSpacing: '-0.02em',
+              }}
+            >
+              HotShop<span className="text-pink-500">.com</span>
+            </span>
+          </Link>
 
           {/* Search Bar - Hidden on mobile, visible on md+ */}
           <div className="hidden md:flex flex-1 max-w-md mx-4 lg:mx-8">
@@ -250,7 +250,7 @@ export default function Header({ user: initialUser }: HeaderProps) {
                       </p>
                       <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
-                    
+
                     <Link
                       href="/profile"
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
@@ -289,14 +289,14 @@ export default function Header({ user: initialUser }: HeaderProps) {
               <>
                 {/* Auth Buttons - Show only Login on mobile, both on desktop */}
                 <div className="flex items-center space-x-2">
-                  <Link 
-                    href="/auth/login" 
+                  <Link
+                    href="/auth/login"
                     className="px-2.5 sm:px-4 py-1.5 sm:py-2 text-gray-700 rounded-md border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 shadow-sm font-medium text-xs sm:text-sm whitespace-nowrap"
                   >
                     Login
                   </Link>
-                  <Link 
-                    href="/auth/register" 
+                  <Link
+                    href="/auth/register"
                     className="hidden sm:inline-block px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-md text-white font-medium text-xs sm:text-sm whitespace-nowrap
                       bg-gradient-to-r from-indigo-600 to-purple-600
                       hover:from-indigo-700 hover:to-purple-700
@@ -323,9 +323,8 @@ export default function Header({ user: initialUser }: HeaderProps) {
         {/* Enhanced Mobile Sidebar Menu */}
         <div
           ref={mobileMenuRef}
-          className={`fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-gradient-to-b from-white to-gray-50 shadow-2xl transform transition-transform duration-300 ease-in-out ${
-            isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-          } overflow-y-auto z-50`}
+          className={`fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-gradient-to-b from-white to-gray-50 shadow-2xl transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+            } overflow-y-auto z-50`}
         >
           {/* Sidebar Header */}
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
@@ -420,11 +419,10 @@ export default function Header({ user: initialUser }: HeaderProps) {
                     key={item.name}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all ${
-                      pathname.startsWith(item.href) 
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md' 
+                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all ${pathname.startsWith(item.href)
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
                         : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
-                    }`}
+                      }`}
                   >
                     <item.icon className="h-5 w-5" />
                     <span>{item.name}</span>
@@ -434,11 +432,10 @@ export default function Header({ user: initialUser }: HeaderProps) {
                   <Link
                     href="/cart"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all ${
-                      pathname === '/cart'
+                    className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all ${pathname === '/cart'
                         ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
                         : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
-                    }`}
+                      }`}
                   >
                     <ShoppingCart className="h-5 w-5" />
                     <span>Shopping Cart</span>

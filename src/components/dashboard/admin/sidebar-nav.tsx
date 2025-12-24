@@ -89,26 +89,22 @@ export default function AdminSidebar({ onCollapse }: AdminSidebarProps) {
               href="/admin/analytics"
               className={`flex items-center transition-all duration-300 ${isCollapsed ? "justify-center w-full" : "space-x-3"}`}
             >
-
               {!isCollapsed && (
-                <a href="/admin/analytics">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`
                       ${fascinate.className}
                       text-blue-700 font-extrabold tracking-tight
                       text-md sm:text-1xl lg:text-2xl
                       leading-none select-none
                     `}
-                      style={{
-                        letterSpacing: '-0.02em',
-                      }}
-                    >
-                      HotShop<span className="text-pink-500">.com</span>
-                    </span>
-                  </div>
-                </a>
-
+                    style={{
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    HotShop<span className="text-pink-500">.com</span>
+                  </span>
+                </div>
               )}
             </Link>
 
